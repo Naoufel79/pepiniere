@@ -36,6 +36,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
+# Ensure media directories exist
+import os
+os.makedirs(MEDIA_ROOT / 'products', exist_ok=True)
+
 # Security settings for production
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
 # SECURE_SSL_REDIRECT = True  # Railway handles SSL automatically
