@@ -19,8 +19,8 @@ class ProduitAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def get_fields(self, request, obj=None):
-        # Don't show image_preview in popup
-        if '_popup' in request.GET:
+        # Don't show image_preview in popup or when adding new object
+        if '_popup' in request.GET or obj is None:
             return ('nom', 'quantite', 'prix_achat', 'prix_vente', 'image', 'description')
         return self.fields
 
