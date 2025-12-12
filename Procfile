@@ -1,1 +1,1 @@
-web: python manage.py migrate && python manage.py collectstatic --no-input && gunicorn Point_De_Vente.wsgi:application --bind 0.0.0.0:$PORT
+web: DJANGO_SETTINGS_MODULE=Point_De_Vente.settings.production python manage.py migrate && DJANGO_SETTINGS_MODULE=Point_De_Vente.settings.production python manage.py collectstatic --no-input && DJANGO_SETTINGS_MODULE=Point_De_Vente.settings.production gunicorn Point_De_Vente.wsgi:application --bind 0.0.0.0:$PORT
