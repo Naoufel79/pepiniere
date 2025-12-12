@@ -13,6 +13,13 @@ DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
 
+# Debug: Always print database info for Railway debugging
+print("=== Railway Database Debug ===")
+print(f"DATABASE_URL: {os.environ.get('DATABASE_URL', 'Not set')}")
+print(f"DATABASE_PUBLIC_URL: {os.environ.get('DATABASE_PUBLIC_URL', 'Not set')}")
+print(f"Using database config: {DATABASES['default']}")
+print("===============================")
+
 # Debug: Print database info (remove in production)
 import sys
 if 'runserver' in sys.argv:
