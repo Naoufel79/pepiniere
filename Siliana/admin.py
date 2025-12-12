@@ -5,8 +5,8 @@ from .models import Produit, Achat, Vente, Order, OrderItem
 
 @admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
-    list_display = ('image_thumbnail', 'nom', 'quantite', 'prix_achat', 'prix_vente', 'has_description')
-    list_display_links = ('image_thumbnail', 'nom')
+    list_display = ('nom', 'quantite', 'prix_achat', 'prix_vente', 'has_description')
+    list_display_links = ('nom',)
     search_fields = ('nom',)
     list_filter = ('quantite',)
     readonly_fields = ('image_preview',)
