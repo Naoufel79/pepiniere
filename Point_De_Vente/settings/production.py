@@ -7,7 +7,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']  # Update this with your actual domain in production
 
-# Database configuration for Railway (PostgreSQL)
+###### Database configuration for Railway (PostgreSQL)
 # Supports both DATABASE_URL and DATABASE_PUBLIC_URL with fallback
 DATABASES = {
     'default': dj_database_url.config(
