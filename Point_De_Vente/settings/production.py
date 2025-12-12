@@ -13,8 +13,23 @@ DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
 
-# Debug: Print database info (remove in production)
+# Create superuser with password after migrations
+from django.contrib.auth import get_user_model
+from django.core.management import execute_from_command_line
 import sys
+
+# Create superuser if it doesn't exist
+try:
+    User = get_user_model()
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'Admin1234')
+        print("Superuser 'admin' created successfully")
+    else:
+        print("Superuser 'admin' already exists")
+except Exception as e:
+    print(f"Superuser creation failed: {e}")
+
+# Debug: Print database info (remove in production)
 if 'runserver' in sys.argv:
     print(f"Database URL: {os.environ.get('DATABASE_URL', 'Not set')}")
     print(f"Database config: {DATABASES['default']}")
