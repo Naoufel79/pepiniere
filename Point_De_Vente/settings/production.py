@@ -7,8 +7,11 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']  # Update this with your actual domain in production
 
 # Database configuration for Railway (PostgreSQL)
+# Supports both DATABASE_URL and DATABASE_PUBLIC_URL with fallback
 DATABASES = {
-    'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL') or os.environ.get('DATABASE_PUBLIC_URL')
+    )
 }
 
 # Static files configuration for production (WhiteNoise)

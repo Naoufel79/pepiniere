@@ -50,6 +50,7 @@ Add these variables in Railway's project settings:
 |----------|-------|-------|
 | `SECRET_KEY` | `your-secret-key-here` | Generate a secure one |
 | `DATABASE_URL` | (Auto-provisioned) | Railway provides this |
+| `DATABASE_PUBLIC_URL` | (Optional fallback) | Alternative database URL |
 | `DEBUG` | `False` | Already set in production.py |
 | `ALLOWED_HOSTS` | `*.railway.app,yourdomain.com` | Update as needed |
 
@@ -60,7 +61,7 @@ Click "Deploy" and Railway will:
 2. Run the commands from your `Procfile`
 3. Start your Gunicorn server
 
-## 📂 File Structure
+## � File Structure
 
 ```
 pepiniere/
@@ -74,7 +75,7 @@ pepiniere/
 └── ... (your app files)
 ```
 
-## 🔧 Troubleshooting
+## � Troubleshooting
 
 **If you get Django import errors:**
 ```bash
