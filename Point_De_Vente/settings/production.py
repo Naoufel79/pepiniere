@@ -23,6 +23,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Security settings for production
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
-SECURE_SSL_REDIRECT = True
+# SECURE_SSL_REDIRECT = True  # Railway handles SSL automatically
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
