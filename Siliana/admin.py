@@ -12,6 +12,18 @@ class ProduitAdmin(admin.ModelAdmin):
     readonly_fields = ('image_preview',)
     fields = ('nom', 'quantite', 'prix_achat', 'prix_vente', 'image', 'image_preview', 'description')
 
+    def get_readonly_fields(self, request, obj=None):
+        # Make image_preview readonly only when not in popup
+        if '_popup' in request.GET:
+            return ()
+        return self.readonly_fields
+
+    def get_fields(self, request, obj=None):
+        # Don't show image_preview in popup
+        if '_popup' in request.GET:
+            return ('nom', 'quantite', 'prix_achat', 'prix_vente', 'image', 'description')
+        return self.fields
+
     def image_thumbnail(self, obj):
         if obj.image:
             return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" alt="{}" />',

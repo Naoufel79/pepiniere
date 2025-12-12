@@ -32,6 +32,10 @@ MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Media files configuration for production
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+
 # Security settings for production
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
 # SECURE_SSL_REDIRECT = True  # Railway handles SSL automatically

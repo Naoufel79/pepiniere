@@ -99,6 +99,25 @@ Your app should now be live at: `https://your-project-name.up.railway.app`
 - WhiteNoise serves static files efficiently
 - Production settings are security-hardened
 
+## 🔧 Troubleshooting Admin Login
+
+**If you can't login as admin, run this in Railway terminal:**
+
+```bash
+# Check superuser details
+python manage.py shell -c "from django.contrib.auth import get_user_model; u = get_user_model().objects.filter(username='admin').first(); print(f'User: {u.username if u else None}'); print(f'Superuser: {u.is_superuser if u else None}'); print(f'Password set: {bool(u.password) if u else None}')"
+
+# Reset admin password
+python manage.py shell -c "from django.contrib.auth import get_user_model; u = get_user_model().objects.get(username='admin'); u.set_password('Admin1234'); u.save(); print('Password reset to: Admin1234')"
+```
+
+**Common login issues:**
+- Clear browser cache/cookies
+- Try incognito mode
+- Check URL: `https://pepiniere-production.up.railway.app/admin/login/`
+- **Primary account:** Username: `admin`, Password: `Admin1234`
+- **Backup account:** Username: `admin2`, Password: `Admin2`
+
 ## ⚠️ Important Settings Information
 
 **About DEBUG and ALLOWED_HOSTS:**
