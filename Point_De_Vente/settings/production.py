@@ -36,6 +36,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
+# Add media files to static finders so WhiteNoise serves them
+STATICFILES_DIRS = [
+    MEDIA_ROOT,
+]
+
 # Ensure media directories exist
 import os
 os.makedirs(MEDIA_ROOT / 'products', exist_ok=True)
