@@ -1,7 +1,7 @@
 from .base import *
 import dj_database_url
 import os
-
+#######
 DEBUG = False
 
 ALLOWED_HOSTS = ['*']  # Update this with your actual domain in production
