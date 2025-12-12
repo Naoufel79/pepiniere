@@ -5,7 +5,7 @@ from .models import Produit, Achat, Vente, Order, OrderItem
 
 @admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'quantite', 'prix_achat', 'prix_vente', 'has_description')
+    list_display = ('nom', 'quantite', 'prix_achat', 'prix_vente')
     list_display_links = ('nom',)
     search_fields = ('nom',)
     list_filter = ('quantite',)
