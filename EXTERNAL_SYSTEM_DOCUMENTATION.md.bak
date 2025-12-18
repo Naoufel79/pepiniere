@@ -1,4 +1,4 @@
-﻿# External System Documentation - PostgreSQL Views
+# External System Documentation - PostgreSQL Views
 
 ## Overview
 
@@ -97,36 +97,7 @@ SELECT * FROM vw_finance_summary;
 - Gross profit = revenue - cost of goods sold
 - Profit margin = (revenue / expenses) * 100 when expenses > 0, else 0
 
-
-## Product Catalog View
-
-### Product Catalog (`vw_product_catalog`)
-
-**Purpose:** Provides a stable product list for integrations that need the product name.
-
-**Query:**
-```sql
-SELECT * FROM vw_product_catalog;
-```
-
-**Notes (compatibility):**
-- `product_name` and `name` contain the same value (your internal column is `nom`).
-- Use `product_id` to join with other datasets.
-
-**Response Schema (columns):**
-```json
-{
-  "product_id": "BIGINT/INTEGER",
-  "product_name": "TEXT",
-  "name": "TEXT",
-  "description": "TEXT",
-  "stock_quantity": "INTEGER",
-  "selling_price": "NUMERIC(15,2)",
-  "purchase_price": "NUMERIC(15,2)",
-  "image_path": "TEXT",
-  "status": "TEXT (available|out_of_stock)"
-}
-```\n## Snapshot Execution Logic
+## Snapshot Execution Logic
 
 ### Pre-Validation Step
 
@@ -182,10 +153,10 @@ def execute_snapshot():
 ### Error Handling
 
 **Clear Error Messages:**
-- "View 'vw_sales_summary' does not exist" â†’ Database setup incomplete
-- "vw_sales_summary returned no data" â†’ Should never happen (fallback UNION ALL ensures data)
-- Connection errors â†’ Network/credentials issues
-- Permission denied â†’ User access problems
+- "View 'vw_sales_summary' does not exist" → Database setup incomplete
+- "vw_sales_summary returned no data" → Should never happen (fallback UNION ALL ensures data)
+- Connection errors → Network/credentials issues
+- Permission denied → User access problems
 
 **Log Examples:**
 ```
@@ -259,13 +230,13 @@ LIMIT 1;
 
 ## Compatibility Guarantees
 
-âœ… **Column Names:** Stable and version-controlled
-âœ… **Data Types:** Explicitly cast (INTEGER, NUMERIC(15,2), etc.)
-âœ… **Null Safety:** All numeric fields use COALESCE
-âœ… **Row Count:** Always returns exactly one row per view
-âœ… **Schema Independence:** Views hide internal table structure
-âœ… **Performance:** Optimized with LEFT JOINs and subqueries
-âœ… **Scalability:** Efficient for large datasets
+✅ **Column Names:** Stable and version-controlled
+✅ **Data Types:** Explicitly cast (INTEGER, NUMERIC(15,2), etc.)
+✅ **Null Safety:** All numeric fields use COALESCE
+✅ **Row Count:** Always returns exactly one row per view
+✅ **Schema Independence:** Views hide internal table structure
+✅ **Performance:** Optimized with LEFT JOINs and subqueries
+✅ **Scalability:** Efficient for large datasets
 
 ## Support
 
@@ -277,4 +248,3 @@ For issues:
 5. Review error logs for specific failure points
 
 **Never modify internal Django tables - use views only.**
-

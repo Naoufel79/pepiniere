@@ -1,4 +1,4 @@
-﻿-- Required Views Creation Script
+-- Required Views Creation Script
 -- Creates 3 views with specific columns as requested
 
 -- =========================================
@@ -22,22 +22,6 @@ SELECT
     ELSE 10 
   END AS seuil_alerte
 FROM "Siliana_produit" p;
--- =========================================
--- 2b. Catalogue Produits View (pour nom produit)
--- =========================================
-CREATE OR REPLACE VIEW catalogue_produits AS
-SELECT
-  p.id AS product_id,
-  p.nom AS product_name,
-  p.nom AS name,
-  p.quantite,
-  CASE 
-    WHEN p.quantite <= 5 THEN 5
-    ELSE 10
-  END AS seuil_alerte
-FROM "Siliana_produit" p;
-
-GRANT SELECT ON catalogue_produits TO external_client;
 
 -- =========================================
 -- 3. Transactions Financieres View
@@ -85,4 +69,3 @@ SELECT * FROM transactions_financieres LIMIT 5;
 -- 1. ventes: Shows sales amount (montant) and sale date (date_vente)
 -- 2. stock: Shows quantity (quantite) and alert threshold (seuil_alerte)
 -- 3. transactions_financieres: Shows transaction type, amount and date
-

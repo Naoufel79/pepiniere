@@ -39,8 +39,7 @@ ORDER BY date_vente DESC;
 CREATE OR REPLACE VIEW v_stock AS
 SELECT
     id,
-    nom as product_name,
-    nom as name,
+    nom as product_name,\r\n    nom as name,
     quantite as current_stock,
     prix_achat as purchase_price,
     prix_vente as selling_price,
@@ -206,8 +205,7 @@ GRANT USAGE ON SCHEMA public TO external_client;
 
 -- Grant SELECT ONLY on our custom views
 GRANT SELECT ON v_sales TO external_client;
-GRANT SELECT ON v_stock TO external_client;
-GRANT SELECT ON vw_product_catalog TO external_client;
+GRANT SELECT ON v_stock TO external_client;\r\nGRANT SELECT ON vw_product_catalog TO external_client;
 GRANT SELECT ON v_finance TO external_client;
 GRANT SELECT ON v_orders TO external_client;
 GRANT SELECT ON v_order_items TO external_client;
@@ -273,5 +271,4 @@ GRANT SELECT ON vw_finance_summary TO external_client;
 -- 3. Never give this user access to Django's auth tables
 -- 4. Views hide sensitive internal data
 -- 5. External system can only read aggregated/reporting data
-
 

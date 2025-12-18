@@ -1,4 +1,4 @@
-﻿-- External System Database Views Setup
+-- External System Database Views Setup
 -- Creates secure views and read-only user for external reporting system
 -- Compatible with Django + Railway + PostgreSQL
 
@@ -40,7 +40,6 @@ CREATE OR REPLACE VIEW v_stock AS
 SELECT
     id,
     nom as product_name,
-    nom as name,
     quantite as current_stock,
     prix_achat as purchase_price,
     prix_vente as selling_price,
@@ -49,21 +48,6 @@ SELECT
     (prix_vente - prix_achat) as profit_margin
 FROM "Siliana_produit"
 ORDER BY nom;
--- Product Catalog View (stable for integrations)
--- Exposes both `product_name` and `name` for compatibility
-CREATE OR REPLACE VIEW vw_product_catalog AS
-SELECT
-    p.id AS product_id,
-    p.nom AS product_name,
-    p.nom AS name,
-    COALESCE(p.description, '') AS description,
-    COALESCE(p.quantite, 0) AS stock_quantity,
-    CAST(COALESCE(p.prix_vente, 0) AS NUMERIC(15,2)) AS selling_price,
-    CAST(COALESCE(p.prix_achat, 0) AS NUMERIC(15,2)) AS purchase_price,
-    p.image AS image_path,
-    CASE WHEN COALESCE(p.quantite, 0) > 0 THEN 'available' ELSE 'out_of_stock' END AS status
-FROM "Siliana_produit" p
-ORDER BY p.nom;
 
 -- Finance Summary View (combines sales and purchases)
 CREATE OR REPLACE VIEW v_finance AS
@@ -207,7 +191,6 @@ GRANT USAGE ON SCHEMA public TO external_client;
 -- Grant SELECT ONLY on our custom views
 GRANT SELECT ON v_sales TO external_client;
 GRANT SELECT ON v_stock TO external_client;
-GRANT SELECT ON vw_product_catalog TO external_client;
 GRANT SELECT ON v_finance TO external_client;
 GRANT SELECT ON v_orders TO external_client;
 GRANT SELECT ON v_order_items TO external_client;
@@ -273,5 +256,3 @@ GRANT SELECT ON vw_finance_summary TO external_client;
 -- 3. Never give this user access to Django's auth tables
 -- 4. Views hide sensitive internal data
 -- 5. External system can only read aggregated/reporting data
-
-
