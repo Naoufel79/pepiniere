@@ -55,6 +55,7 @@ function getFriendlyAuthError(err) {
   if (code.includes("auth/invalid-verification-code")) return "رمز التحقق غير صحيح.";
   if (code.includes("auth/code-expired")) return "انتهت صلاحية الرمز. الرجاء طلب رمز جديد.";
 
+  if (code) return `حدث خطأ (${code}). الرجاء المحاولة مرة أخرى.`;
   return "حدث خطأ. الرجاء المحاولة مرة أخرى.";
 }
 
@@ -176,11 +177,6 @@ async function sendOtp() {
   setAuthMessage({ status: "جاري إرسال الرمز..." });
 
   try {
-    const tokenInput = document.getElementById("firebase_id_token");
-    if (tokenInput) {
-      tokenInput.value = await user.getIdToken();
-    }
-
     const appVerifier = await ensureRecaptcha();
     confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
 
@@ -190,6 +186,7 @@ async function sendOtp() {
       status: "أدخل الرمز المكون من 6 أرقام."
     });
   } catch (err) {
+    console.error(err);
     // If reCAPTCHA gets into a bad state, reset it
     try {
       recaptchaVerifier?.clear();
@@ -225,6 +222,7 @@ async function verifyOtp() {
     const cred = await confirmationResult.confirm(code);
     setVerifiedUI(cred.user);
   } catch (err) {
+    console.error(err);
     setAuthMessage({ error: getFriendlyAuthError(err) });
   } finally {
     setBusy(verifyBtn, false);
@@ -257,6 +255,11 @@ async function handlePlaceOrder(e) {
   setAuthMessage({ status: "جاري تسجيل الطلب..." });
 
   try {
+    const tokenInput = $("firebase_id_token");
+    if (tokenInput) {
+      tokenInput.value = await user.getIdToken();
+    }
+
     const orderDoc = {
       uid: user.uid,
       phoneNumber: user.phoneNumber || "",
