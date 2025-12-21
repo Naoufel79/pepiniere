@@ -123,6 +123,9 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# If True, Django will serve MEDIA files even when DEBUG=False (useful for small deployments).
+SERVE_MEDIA = (os.environ.get('SERVE_MEDIA', '') or '').strip().lower() in ('1', 'true', 'yes')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

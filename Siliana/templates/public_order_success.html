@@ -1,0 +1,84 @@
+{% extends 'store_base.html' %}
+
+{% block title %}تم إرسال الطلب - مزرعة نوادر التين{% endblock %}
+
+{% block content %}
+<section class="section">
+  <h1 class="section-title">تم إرسال الطلب</h1>
+
+  {% if order %}
+    <p class="section-subtitle">شكرا لك. رقم طلبك هو <strong>#{{ order.id }}</strong>. سنتصل بك قريبا.</p>
+
+    <div class="checkout-grid" style="margin-top:14px">
+      <div>
+        <div class="panel">
+          <div class="panel-title">معلومات التوصيل</div>
+          <div style="line-height:1.9;color:var(--muted)">
+            <div><strong style="color:var(--text)">الاسم:</strong> {{ order.nom }}</div>
+            <div><strong style="color:var(--text)">الهاتف:</strong> {{ order.telephone }}</div>
+            <div><strong style="color:var(--text)">الولاية:</strong> {{ order.wilaya }}</div>
+            <div><strong style="color:var(--text)">المدينة:</strong> {{ order.ville }}</div>
+            {% if order.email %}<div><strong style="color:var(--text)">الإيميل:</strong> {{ order.email }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:14px">
+          <div class="panel-title">المنتجات</div>
+          <div class="grid" style="gap:12px">
+            {% for it in items %}
+              <div class="card" style="padding:12px">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+                  <div style="font-weight:950">{{ it.produit.nom }}</div>
+                  <div style="color:var(--muted)">{{ it.quantite }} × {{ it.prix }} د.ت</div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-ghost" type="button" id="clearCartBtn">تفريغ السلة</button>
+          <a class="btn btn-primary" href="{% url 'products_catalog' %}">متابعة التسوق</a>
+        </div>
+      </div>
+
+      <aside class="checkout-aside">
+        <div class="panel">
+          <div class="panel-title">ملخص</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="color:var(--muted)">المجموع</div>
+            <div style="font-size:22px;font-weight:950">{{ total }} د.ت</div>
+          </div>
+          <div style="margin-top:14px">
+            <a class="btn btn-ghost" href="{% url 'public_order' %}">إنشاء طلب جديد</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <script>
+      // Clear cart automatically after a successful order.
+      document.addEventListener('DOMContentLoaded', () => {
+        try {
+          if (window.storeClearCart) window.storeClearCart();
+        } catch (e) {}
+
+        const btn = document.getElementById('clearCartBtn');
+        btn?.addEventListener('click', () => {
+          try { if (window.storeClearCart) window.storeClearCart(); } catch (e) {}
+        });
+      });
+    </script>
+  {% else %}
+    <div class="panel" style="margin-top:14px">
+      <div class="panel-title">لا يوجد طلب لعرضه</div>
+      <div style="color:var(--muted);line-height:1.8">
+        افتح صفحة المنتجات لمتابعة التسوق.
+      </div>
+      <div style="margin-top:14px">
+        <a class="btn btn-primary" href="{% url 'products_catalog' %}">متابعة التسوق</a>
+      </div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

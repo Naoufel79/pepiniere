@@ -320,13 +320,35 @@ def public_order(request):
                         # Log error but don't fail the order
                         print(f"Email sending failed: {email_error}")
                 
-                messages.success(request, '✓ تم إرسال طلبك بنجاح! سنتصل بك قريباً' + (' وتم إرسال نسخة إلى بريدك الإلكتروني.' if email else ''))
-                return redirect('public_order')
+                messages.success(request, ' تم إرسال طلبك بنجاح! سنتصل بك قريبا' + (' وتم إرسال نسخة إلى بريدك الإلكتروني.' if email else ''))
+                request.session['last_order_id'] = order.id
+                return redirect('public_order_success')
                 
         except Exception as e:
             messages.error(request, f'حدث خطأ: {str(e)}')
     
     return render(request, 'public_order.html', context)
+
+
+
+def public_order_success(request):
+    """Public order success page (shows last order from session)."""
+    order_id = request.session.get('last_order_id')
+    order = None
+    items = []
+    total = None
+
+    if order_id:
+        order = get_object_or_404(Order, id=order_id)
+        items = list(order.orderitem_set.select_related('produit').all())
+        total = order.total()
+        request.session.pop('last_order_id', None)
+
+    return render(
+        request,
+        'public_order_success.html',
+        {'order': order, 'items': items, 'total': total},
+    )
 
 
 @login_required

@@ -87,11 +87,14 @@ class PublicOrderTests(TestCase):
                 "manual_verification_code": "20707272",
                 f"product_{self.produit.id}": "2",
             },
-            follow=False,
+            follow=True,
         )
 
-        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.status_code, 200)
         self.assertEqual(Order.objects.count(), 1)
+
+        self.assertIn('/order/sent/', resp.request.get('PATH_INFO', ''))
+        self.assertContains(resp, '#')
 
         self.produit.refresh_from_db()
         self.assertEqual(self.produit.quantite, 8)

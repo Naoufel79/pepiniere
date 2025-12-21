@@ -25,7 +25,7 @@
           <div class="panel" style="background:rgba(255,255,255,.03)">
             <div class="panel-title">تأكيد الطلب</div>
             <div class="alert" style="margin:0;color:var(--muted)">
-              في الخطوة الأخيرة ستطلب منك كتابة رمز التأكيد لتفعيل زر تأكيد الطلب.
+              في الخطوة الأخيرة اضغط إدخال الرمز وسيظهر مربع لإدخال رمز التأكيد.
             </div>
           </div>
         {% else %}
@@ -173,26 +173,20 @@
         <div class="panel" style="margin-top:14px;background:rgba(255,255,255,.03)">
           <div class="panel-title">الخطوة الأخيرة: أدخل رمز التأكيد</div>
 
-          <div class="form-grid" style="align-items:end">
-            <div class="field">
-              <label for="manualCode">الرمز</label>
-              <input class="input" type="text" id="manualCode" name="manual_verification_code" inputmode="numeric" autocomplete="one-time-code" placeholder="20707272" required />
-            </div>
+          <input type="hidden" id="manualCode" name="manual_verification_code" />
 
-            <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <button type="button" id="verifyManualCodeBtn" class="btn btn-primary">تأكيد الرمز</button>
-            </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <button type="button" id="verifyManualCodeBtn" class="btn btn-primary">إدخال الرمز</button>
+            <div style="color:var(--muted)">سيظهر لك مربع لإدخال الرمز.</div>
           </div>
 
           <div id="manualCodeStatus" class="alert" style="display:none;margin-top:10px;"></div>
           <div id="manualCodeError" class="alert alert-danger" style="display:none;margin-top:10px;"></div>
           <div id="manualCodeSuccess" class="alert alert-success" style="display:none;margin-top:10px;"></div>
-
-          <div style="color:var(--muted);line-height:1.6;margin-top:8px">اكتب الرمز ثم اضغط تأكيد الرمز لتفعيل زر تأكيد الطلب.</div>
         </div>
         {% endif %}
 
-<button type="submit" id="placeOrderBtn" class="btn btn-primary" style="width:100%;margin-top:14px" disabled>
+        <button type="submit" id="placeOrderBtn" class="btn btn-primary" style="width:100%;margin-top:14px" disabled>
           تأكيد الطلب
         </button>
       </form>

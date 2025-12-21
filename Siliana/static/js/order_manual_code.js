@@ -65,7 +65,7 @@ function init() {
   setMessage({ status: "في الخطوة الأخيرة أدخل الرمز لتفعيل زر تأكيد الطلب." });
 
   verifyBtn.addEventListener("click", () => {
-    const code = (codeInput.value || "").trim();
+    const code = (window.prompt("أدخل رمز التأكيد") || "").trim();
 
     if (!code) {
       setMessage({ error: "الرجاء إدخال الرمز." });
@@ -78,16 +78,18 @@ function init() {
       return;
     }
 
-    setBusy(verifyBtn, true);
+    // Store for POST; server enforces the real check.
+    codeInput.value = code;
 
-    // We don't know the expected code client-side. Unlock UX and let server validate on submit.
-    codeInput.readOnly = true;
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = "تم إدخال الرمز";
+
     placeOrderBtn.disabled = false;
     setStepperState(true);
 
     setMessage({
-      success: "✓ تم إدخال الرمز. يمكنك الآن إرسال الطلب.",
-      status: "عند إرسال الطلب سيتم التحقق من الرمز." 
+      success: "تم إدخال الرمز. يمكنك الآن إرسال الطلب.",
+      status: "عند إرسال الطلب سيتم التحقق من الرمز.",
     });
   });
 }
