@@ -1,0 +1,87 @@
+{% load static %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#4f46e5" />
+  <title>{% block title %}مزرعة نوادر التين{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/store.css' %}" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="store">
+  <header class="store-header">
+    <div class="container header-row">
+      <a class="brand" href="{% url 'products_catalog' %}" aria-label="العودة إلى الصفحة الرئيسية">
+        <img class="brand-logo" src="{% static 'images/logo.png' %}" alt="" width="40" height="40" loading="eager" decoding="async" />
+        <span class="brand-name">مزرعة نوادر التين</span>
+      </a>
+
+      <nav class="nav" aria-label="التنقل الرئيسي">
+        <a class="nav-link" href="{% url 'products_catalog' %}">المنتجات</a>
+        <a class="nav-link" href="{% url 'public_order' %}">إتمام الطلب</a>
+        <a class="nav-link" href="#faq">الأسئلة</a>
+        <a class="nav-link" href="#contact">اتصل بنا</a>
+      </nav>
+
+      <div class="header-actions">
+        <a class="btn btn-ghost" href="{% url 'cart' %}" aria-label="السلة">
+          السلة
+          <span class="badge" id="cartCount" aria-live="polite">0</span>
+        </a>
+        <a class="btn btn-primary" href="{% url 'public_order' %}">اطلب الآن</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="store-main">
+    <div class="container">
+      {% if messages %}
+        <div class="messages" role="status" aria-live="polite">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <footer class="store-footer" id="contact">
+    <div class="container footer-grid">
+      <div>
+        <div class="footer-title">مزرعة نوادر التين</div>
+        <p class="footer-text">منتجات موسمية بجودة عالية. اطلب بسهولة وسنتصل بك لتأكيد الطلب.</p>
+        <div class="footer-text">☎ 20.707.272</div>
+      </div>
+
+      <div>
+        <div class="footer-title">روابط</div>
+        <a class="footer-link" href="{% url 'products_catalog' %}">المنتجات</a>
+        <a class="footer-link" href="{% url 'public_order' %}">إتمام الطلب</a>
+        <a class="footer-link" href="{% url 'cart' %}">السلة</a>
+      </div>
+
+      <div id="faq">
+        <div class="footer-title">FAQ</div>
+        <details class="faq">
+          <summary>كيف أؤكد طلبي؟</summary>
+          <div>أدخل رقم هاتفك ثم أكمل الطلب. سنتصل بك لتأكيد التفاصيل.</div>
+        </details>
+        <details class="faq">
+          <summary>هل التوصيل متاح؟</summary>
+          <div>نعم، داخل تونس. اختر الولاية والمدينة في صفحة الطلب.</div>
+        </details>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <div class="footer-small">© {% now 'Y' %} مزرعة نوادر التين. جميع الحقوق محفوظة.</div>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/store.js' %}" defer></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

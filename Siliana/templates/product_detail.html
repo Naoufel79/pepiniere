@@ -1,410 +1,108 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ produit.nom }} - مزرعة نوادر التين</title>
-    {% load static %}
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-            animation: fadeIn 0.6s ease-out;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
-        .logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            background: white;
-            padding: 5px;
-            margin-bottom: 10px;
-        }
-        .header h1 {
-            font-size: 1.8em;
-            margin-bottom: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        .back-button {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-        .back-button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-        .content {
-            padding: 40px;
-        }
-        .product-showcase {
-            display: flex;
-            gap: 40px;
-            margin-bottom: 40px;
-            align-items: flex-start;
-        }
-        .image-container {
-            flex: 1;
-            max-width: 400px;
-        }
-        .product-image {
-            width: 100%;
-            height: auto;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-        }
-        .product-image:hover {
-            transform: scale(1.05);
-        }
-        .product-info {
-            flex: 1;
-        }
-        .product-title {
-            font-size: 2.5em;
-            color: #333;
-            margin-bottom: 20px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .price-section {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
-            border: 2px solid #667eea20;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
-        }
-        .price-label {
-            color: #667eea;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-        .price-value {
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #333;
-        }
-        .price-currency {
-            font-size: 0.6em;
-            color: #667eea;
-        }
-        .status-section {
-            margin-bottom: 25px;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        .status-available {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            color: #155724;
-            border: 2px solid #b1dfbb;
-        }
-        .status-unavailable {
-            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-            color: #721c24;
-            border: 2px solid #f1b0b7;
-        }
-        .description-section {
-            background: white;
-            border-left: 5px solid #667eea;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-        }
-        .description-title {
-            font-size: 1.8em;
-            color: #667eea;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .description-text {
-            color: #555;
-            font-size: 1.2em;
-            line-height: 1.8;
-            white-space: pre-wrap;
-        }
-        .order-button {
-            display: inline-block;
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 15px;
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-top: 30px;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        }
-        .order-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
-        }
-        .no-description {
-            color: #999;
-            font-style: italic;
-            text-align: center;
-            padding: 40px;
-        }
+{% extends 'store_base.html' %}
+{% load static %}
 
-        /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                border-radius: 15px;
-            }
-            
-            .header {
-                padding: 20px 15px;
-                position: relative;
-            }
-            
-            .logo {
-                width: 60px;
-                height: 60px;
-            }
-            
-            .header h1 {
-                font-size: 1.4em;
-            }
-            
-            .back-button {
-                position: static;
-                display: inline-block;
-                margin-top: 15px;
-                padding: 8px 16px;
-                font-size: 0.9em;
-            }
-            
-            .content {
-                padding: 20px 15px;
-            }
-            
-            .product-showcase {
-                flex-direction: column;
-                gap: 25px;
-            }
-            
-            .image-container {
-                max-width: 100%;
-            }
-            
-            .product-title {
-                font-size: 1.8em;
-                margin-bottom: 15px;
-            }
-            
-            .price-section {
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-            
-            .price-label {
-                font-size: 1em;
-            }
-            
-            .price-value {
-                font-size: 2em;
-            }
-            
-            .status-badge {
-                padding: 10px 20px;
-                font-size: 1em;
-            }
-            
-            .description-section {
-                padding: 20px 15px;
-            }
-            
-            .description-title {
-                font-size: 1.4em;
-                margin-bottom: 15px;
-            }
-            
-            .description-text {
-                font-size: 1.1em;
-                line-height: 1.7;
-            }
-            
-            .order-button {
-                padding: 15px;
-                font-size: 1.1em;
-            }
-        }
+{% block title %}{{ produit.nom }} - مزرعة نوادر التين{% endblock %}
 
-        @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-            
-            .header {
-                padding: 15px 10px;
-            }
-            
-            .logo {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .header h1 {
-                font-size: 1.2em;
-            }
-            
-            .back-button {
-                padding: 6px 12px;
-                font-size: 0.85em;
-            }
-            
-            .content {
-                padding: 15px 10px;
-            }
-            
-            .product-title {
-                font-size: 1.5em;
-            }
-            
-            .price-value {
-                font-size: 1.8em;
-            }
-            
-            .description-title {
-                font-size: 1.2em;
-            }
-            
-            .description-text {
-                font-size: 1em;
-            }
-            
-            .order-button {
-                font-size: 1em;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <img src="{% static 'images/logo.png' %}" alt="مزرعة نوادر التين" class="logo">
-            <h1>🌿 مزرعة نوادر التين</h1>
-            <a href="{% url 'public_order' %}" class="back-button">← العودة للطلب</a>
+{% block content %}
+<section class="section">
+  <a class="btn btn-ghost" href="{% url 'products_catalog' %}">← الرجوع للمنتجات</a>
+
+  <div class="checkout-grid" style="margin-top:14px">
+    <div class="panel">
+      <div style="display:grid;gap:14px">
+        <div class="card" style="overflow:hidden">
+          <div class="product-media" style="aspect-ratio: 16/10">
+            {% if produit.image %}
+              <img data-skeleton src="{{ produit.image.url }}" alt="{{ produit.nom|escape }}" loading="eager" decoding="async" />
+            {% else %}
+              <div style="height:100%;display:flex;align-items:center;justify-content:center;color:rgba(229,231,235,.55);">لا توجد صورة</div>
+            {% endif %}
+          </div>
         </div>
-        
-        <div class="content">
-            <div class="product-showcase">
-                <div class="image-container">
-                    {% if produit.image %}
-                        <img src="{{ produit.image.url }}" alt="{{ produit.nom }}" class="product-image">
-                    {% else %}
-                        <img src="{% static 'images/logo.png' %}" alt="{{ produit.nom }}" class="product-image">
-                    {% endif %}
-                </div>
-                
-                <div class="product-info">
-                    <h2 class="product-title">{{ produit.nom }}</h2>
-                    
-                    <div class="price-section">
-                        <div class="price-label">السعر</div>
-                        <div class="price-value">
-                            {{ produit.prix_vente }} <span class="price-currency">د.ت</span>
-                        </div>
-                    </div>
-                    
-                    <div class="status-section">
-                        {% if produit.quantite > 0 %}
-                            <span class="status-badge status-available">✓ متوفر في المخزون</span>
-                        {% else %}
-                            <span class="status-badge status-unavailable">✗ غير متوفر حالياً</span>
-                        {% endif %}
-                    </div>
-                    
-                    <a href="{% url 'public_order' %}" class="order-button">
-                        🛒 اطلب الآن
-                    </a>
-                </div>
-            </div>
-            
-            <div class="description-section">
-                <h3 class="description-title">📝 نبذة عن المنتج</h3>
-                {% if produit.description %}
-                    <div class="description-text">{{ produit.description }}</div>
+
+        <div>
+          <h1 class="section-title" style="margin-bottom:8px">{{ produit.nom }}</h1>
+          <p class="section-subtitle" style="margin-bottom:12px">{% if produit.description %}{{ produit.description }}{% else %}وصف غير متوفر.{% endif %}</p>
+
+          <div class="panel" style="background:rgba(255,255,255,.03)">
+            <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+              <div>
+                <div style="color:var(--muted);font-weight:800">السعر</div>
+                <div style="font-size:28px;font-weight:950">{{ produit.prix_vente }} د.ت</div>
+              </div>
+              <div>
+                {% if produit.quantite > 0 %}
+                  <div class="status ok">متوفر ({{ produit.quantite }})</div>
                 {% else %}
-                    <div class="no-description">لا يوجد وصف متاح لهذا المنتج حالياً</div>
+                  <div class="status no">غير متوفر</div>
                 {% endif %}
+              </div>
             </div>
+
+            <div class="card-actions" style="margin-top:14px">
+              <button
+                class="btn btn-primary"
+                type="button"
+                {% if produit.quantite <= 0 %}disabled{% endif %}
+                onclick="window.storeAddToCart({ id: '{{ produit.id }}', name: '{{ produit.nom|escapejs }}', price: '{{ produit.prix_vente }}', imageUrl: '{% if produit.image %}{{ produit.image.url }}{% endif %}' })"
+              >
+                أضف للسلة
+              </button>
+              <a class="btn btn-ghost" href="{% url 'cart' %}">عرض السلة</a>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</body>
-</html>
+
+    <aside class="checkout-aside">
+      <div class="panel">
+        <div class="panel-title">إتمام الطلب</div>
+        <div style="color:var(--muted);line-height:1.7">
+          بعد إضافة المنتجات إلى السلة، انتقل لإتمام الطلب وتأكيد الهاتف.
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn btn-primary" href="{% url 'public_order' %}">إتمام الطلب</a>
+          <a class="btn btn-ghost" href="{% url 'products_catalog' %}">متابعة التسوق</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+{% if similar_products %}
+<section class="section">
+  <h2 class="section-title">منتجات مشابهة</h2>
+  <div class="grid products-grid">
+    {% for p in similar_products %}
+      <article class="card product-card">
+        <a href="{% url 'product_detail' p.id %}" style="color:inherit;text-decoration:none;">
+          <div class="product-media">
+            {% if p.image %}
+              <img data-skeleton src="{{ p.image.url }}" alt="{{ p.nom|escape }}" loading="lazy" decoding="async" />
+            {% else %}
+              <div style="height:100%;display:flex;align-items:center;justify-content:center;color:rgba(229,231,235,.55);">لا توجد صورة</div>
+            {% endif %}
+          </div>
+        </a>
+        <div class="card-body">
+          <h3 class="product-title">{{ p.nom }}</h3>
+          <div class="product-meta">
+            <div class="price">{{ p.prix_vente }} د.ت</div>
+            {% if p.quantite > 0 %}<div class="status ok">متوفر</div>{% else %}<div class="status no">غير متوفر</div>{% endif %}
+          </div>
+          <div class="card-actions">
+            <a class="btn btn-ghost" href="{% url 'product_detail' p.id %}">التفاصيل</a>
+            <button class="btn btn-primary" type="button" {% if p.quantite <= 0 %}disabled{% endif %}
+              onclick="window.storeAddToCart({ id: '{{ p.id }}', name: '{{ p.nom|escapejs }}', price: '{{ p.prix_vente }}', imageUrl: '{% if p.image %}{{ p.image.url }}{% endif %}' })">
+              أضف للسلة
+            </button>
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

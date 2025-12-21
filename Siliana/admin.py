@@ -23,25 +23,35 @@ class ProduitAdmin(admin.ModelAdmin):
         if '_popup' in request.GET or obj is None:
             return ('nom', 'quantite', 'prix_achat', 'prix_vente', 'image', 'description')
         return self.fields
-
     def image_thumbnail(self, obj):
-        if obj.image and obj.image.url:
-            try:
-                return format_html('<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" alt="{}" />',
-                                 obj.image.url, obj.nom)
-            except:
-                return format_html('<span style="color: #999; font-style: italic;">خطأ في الصورة</span>')
-        return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة</span>')
-    image_thumbnail.short_description = 'صورة'
+        if not obj.image:
+            return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة</span>')
 
+        try:
+            url = obj.image.url
+        except Exception:
+            return format_html('<span style="color: #999; font-style: italic;">خطأ في الصورة</span>')
+
+        return format_html(
+            '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" alt="{}" />',
+            url,
+            obj.nom,
+        )
+    image_thumbnail.short_description = 'صورة'
     def image_preview(self, obj):
-        if obj.image and obj.image.url:
-            try:
-                return format_html('<img src="{}" width="150" height="150" style="object-fit: cover; border-radius: 5px;" alt="{} - معاينة" />',
-                                 obj.image.url, obj.nom)
-            except:
-                return format_html('<span style="color: #999; font-style: italic;">خطأ في تحميل الصورة</span>')
-        return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة للمعاينة</span>')
+        if not obj.image:
+            return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة للمعاينة</span>')
+
+        try:
+            url = obj.image.url
+        except Exception:
+            return format_html('<span style="color: #999; font-style: italic;">خطأ في تحميل الصورة</span>')
+
+        return format_html(
+            '<img src="{}" width="150" height="150" style="object-fit: cover; border-radius: 5px;" alt="{} - معاينة" />',
+            url,
+            obj.nom,
+        )
     image_preview.short_description = 'معاينة الصورة'
     
     def has_description(self, obj):

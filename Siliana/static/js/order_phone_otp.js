@@ -17,6 +17,25 @@ function $(id) {
   return document.getElementById(id);
 }
 
+function setStepperState(verified) {
+  const s1 = $("step1");
+  const s2 = $("step2");
+  const s3 = $("step3");
+  if (!s1 || !s2 || !s3) return;
+
+  if (verified) {
+    s1.classList.remove("is-active");
+    s1.classList.add("is-done");
+    s2.classList.add("is-active");
+    s3.classList.add("is-active");
+  } else {
+    s1.classList.add("is-active");
+    s1.classList.remove("is-done");
+    s2.classList.remove("is-active", "is-done");
+    s3.classList.remove("is-active", "is-done");
+  }
+}
+
 function setText(id, text) {
   const el = $(id);
   if (el) el.textContent = text;
@@ -116,6 +135,8 @@ function setVerifiedUI(user) {
 
   if (placeOrderBtn) placeOrderBtn.disabled = false;
 
+  setStepperState(true);
+
   setAuthMessage({
     success: "\u2713 تم تأكيد رقم الهاتف بنجاح",
     status: user?.phoneNumber ? `رقم الهاتف: ${user.phoneNumber}` : "تم تأكيد رقم الهاتف"
@@ -139,6 +160,8 @@ function setNotVerifiedUI() {
   setAuthMessage({
     status: "الرجاء تأكيد رقم الهاتف عبر رسالة SMS لإرسال الطلب."
   });
+
+  setStepperState(false);
 }
 
 function getSelectedItems() {

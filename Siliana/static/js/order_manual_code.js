@@ -2,6 +2,25 @@ function $(id) {
   return document.getElementById(id);
 }
 
+function setStepperState(verified) {
+  const s1 = $("step1");
+  const s2 = $("step2");
+  const s3 = $("step3");
+  if (!s1 || !s2 || !s3) return;
+
+  if (verified) {
+    s1.classList.remove("is-active");
+    s1.classList.add("is-done");
+    s2.classList.add("is-active");
+    s3.classList.add("is-active");
+  } else {
+    s1.classList.add("is-active");
+    s1.classList.remove("is-done");
+    s2.classList.remove("is-active", "is-done");
+    s3.classList.remove("is-active", "is-done");
+  }
+}
+
 function setText(id, text) {
   const el = $(id);
   if (el) el.textContent = text;
@@ -41,6 +60,7 @@ function init() {
   if (!verifyBtn || !placeOrderBtn || !codeInput) return;
 
   placeOrderBtn.disabled = true;
+  setStepperState(false);
   setMessage({ status: "الرجاء إدخال الرمز لتفعيل زر تأكيد الطلب." });
 
   verifyBtn.addEventListener("click", () => {
@@ -62,6 +82,7 @@ function init() {
     // We don't know the expected code client-side. Unlock UX and let server validate on submit.
     codeInput.readOnly = true;
     placeOrderBtn.disabled = false;
+    setStepperState(true);
 
     setMessage({
       success: "✓ تم إدخال الرمز. يمكنك الآن إرسال الطلب.",

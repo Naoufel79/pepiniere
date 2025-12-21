@@ -1,0 +1,39 @@
+{% extends 'store_base.html' %}
+
+{% block title %}السلة - مزرعة نوادر التين{% endblock %}
+
+{% block content %}
+<section class="section" id="cartRoot">
+  <h1 class="section-title">السلة</h1>
+  <p class="section-subtitle">يمكنك تعديل الكميات ثم المتابعة لإتمام الطلب.</p>
+
+  <div id="cartEmpty" class="panel" style="display:none;">
+    السلة فارغة حالياً. <a class="btn btn-primary" style="margin-top:10px" href="{% url 'products_catalog' %}">تصفح المنتجات</a>
+  </div>
+
+  <div class="checkout-grid" style="margin-top:14px">
+    <div>
+      <div id="cartItems" class="grid" style="gap:12px"></div>
+
+      <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" type="button" id="cartClear">تفريغ السلة</button>
+        <a class="btn btn-ghost" href="{% url 'products_catalog' %}">متابعة التسوق</a>
+      </div>
+    </div>
+
+    <aside class="checkout-aside">
+      <div class="panel">
+        <div class="panel-title">المجموع</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div style="color:var(--muted)">الإجمالي</div>
+          <div style="font-size:22px;font-weight:950" id="cartTotal">0.00 د.ت</div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn btn-primary" href="{% url 'public_order' %}">متابعة لإتمام الطلب</a>
+          <a class="btn btn-ghost" href="{% url 'public_order' %}#catalog">تعديل المنتجات</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

@@ -1,976 +1,331 @@
-﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مزرعة نوادر التين - طلب منتجات</title>
-    {% load static %}
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-            animation: fadeIn 0.6s ease-out;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        .logo-container {
-            margin-bottom: 15px;
-        }
-        .logo {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 4px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            background: white;
-            padding: 5px;
-        }
-        .header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        .phone-number {
-            font-size: 22px;
-            font-weight: bold;
-            margin-top: 10px;
-            letter-spacing: 2px;
-        }
-        .form-container {
-            padding: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: bold;
-        }
-        input[type="text"],
-        input[type="tel"],
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .product-list {
-            margin-top: 30px;
-            border-top: 2px solid #667eea;
-            padding-top: 20px;
-        }
-        .product-item {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 16px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .product-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
-            border-color: #667eea40;
-        }
-        .product-item.unavailable {
-            background: linear-gradient(135deg, #ffe6e6 0%, #fff5f5 100%);
-            border-color: #ffcccc;
-            opacity: 0.7;
-        }
-        .product-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .product-name {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #333;
-        }
-        .product-price {
-            color: #667eea;
-            font-weight: bold;
-        }
-        .product-status {
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-        .available {
-            color: #28a745;
-        }
-        .unavailable-text {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .quantity-control input {
-            width: 80px;
-            text-align: center;
-        }
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 30px;
-            transition: transform 0.2s;
-        }
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        .btn-submit:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .required {
-            color: #dc3545;
-        }
-        .product-content {
-            display: flex;
-            gap: 15px;
-            align-items: flex-start;
-        }
-        .product-image-left {
-            flex-shrink: 0;
-        }
-        .product-details {
-            flex: 1;
-        }
-        .email-group {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
-            border: 2px solid #667eea20;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
-        }
-        .email-group label {
-            color: #667eea;
-            font-size: 1.1em;
-            margin-bottom: 12px;
-        }
-        .email-input {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #667eea40;
-            border-radius: 10px;
-            font-size: 18px;
-            transition: all 0.3s ease;
-            background: white;
-            color: #333;
-            font-weight: 500;
-        }
-        .email-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-            transform: translateY(-1px);
-        }
-        .email-input::placeholder {
-            color: #aab0b6;
-            font-style: italic;
-        }
-        .email-help {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-            padding: 12px 16px;
-            background: rgba(102, 126, 234, 0.05);
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-        .email-icon {
-            font-size: 20px;
-            margin-left: 10px;
-            color: #667eea;
-        }
-        .email-text {
-            color: #555;
-            font-size: 14px;
-            line-height: 1.4;
-            font-weight: 500;
-        }
+{% extends 'store_base.html' %}
+{% load static %}
 
-        /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
+{% block title %}إتمام الطلب - مزرعة نوادر التين{% endblock %}
 
-            .container {
-                border-radius: 15px;
-                margin: 0;
-            }
+{% block content %}
+<section class="section">
+  <h1 class="section-title">إتمام الطلب</h1>
+  <p class="section-subtitle">خطوات بسيطة: تأكيد الهاتف → معلومات التوصيل → تأكيد المنتجات.</p>
 
-            /* Order Summary Mobile Styles */
-            #orderSummary {
-                padding: 15px !important;
-                margin-bottom: 20px !important;
-            }
+  <div class="stepper" aria-label="خطوات إتمام الطلب">
+    <div class="step is-active" id="step1">1) تأكيد الهاتف</div>
+    <div class="step" id="step2">2) معلومات التوصيل</div>
+    <div class="step" id="step3">3) تأكيد الطلب</div>
+  </div>
 
-            #orderSummary h3 {
-                font-size: 1.1em !important;
-                margin-bottom: 15px !important;
-            }
+  <div class="checkout-grid" style="margin-top:14px">
+    <div class="checkout-main">
+      <form method="POST" id="orderForm" class="panel">
+        {% csrf_token %}
+        <input type="hidden" id="firebase_id_token" name="firebase_id_token" />
 
-            #summaryItems {
-                padding: 10px !important;
-            }
+                <!-- Step 1: Verification -->
+        {% if phone_verification_mode == 'static_code' %}
+          <div class="panel" style="background:rgba(255,255,255,.03)">
+            <div class="panel-title">تأكيد الطلب عبر رمز</div>
+            <div id="manualCodeStatus" class="alert" style="display:none;"></div>
 
-            #summaryItems > div {
-                flex-direction: column !important;
-                gap: 8px !important;
-                padding: 10px !important;
-            }
+            <div class="form-grid">
+              <div class="field">
+                <label for="manualCode">الرمز</label>
+                <input class="input" type="text" id="manualCode" name="manual_verification_code" inputmode="numeric" autocomplete="one-time-code" placeholder="20707272" required />
+              </div>
 
-            #summaryItems > div > div:first-child {
-                width: 100% !important;
-            }
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button type="button" id="verifyManualCodeBtn" class="btn btn-primary">تأكيد الرمز</button>
+              </div>
 
-            #summaryItems > div > div:last-child {
-                text-align: left !important;
-                font-size: 1.2em !important;
-            }
+              <div style="color:var(--muted);line-height:1.6">أدخل الرمز الذي أعطيناه لك ثم اضغط “تأكيد الرمز”.</div>
 
-            #totalAmount {
-                font-size: 1.5em !important;
-            }
-
-            .header {
-                padding: 20px 15px;
-            }
-
-            .logo {
-                width: 80px;
-                height: 80px;
-                border: 3px solid white;
-            }
-
-            .header h1 {
-                font-size: 1.5em;
-                margin-bottom: 8px;
-            }
-
-            .phone-number {
-                font-size: 18px;
-                letter-spacing: 1px;
-            }
-
-            .form-container {
-                padding: 20px 15px;
-            }
-
-            .form-group {
-                margin-bottom: 15px;
-            }
-
-            label {
-                font-size: 15px;
-                margin-bottom: 6px;
-            }
-
-            input[type="text"],
-            input[type="tel"],
-            input[type="email"],
-            select {
-                padding: 10px;
-                font-size: 15px;
-            }
-
-            .email-group {
-                padding: 15px;
-                margin-bottom: 20px;
-            }
-
-            .email-group label {
-                font-size: 1em;
-                margin-bottom: 10px;
-            }
-
-            .email-input {
-                padding: 12px 15px;
-                font-size: 15px;
-            }
-
-            .email-help {
-                padding: 10px 12px;
-                margin-top: 8px;
-            }
-
-            .email-icon {
-                font-size: 18px;
-                margin-left: 8px;
-            }
-
-            .email-text {
-                font-size: 13px;
-            }
-
-            .product-list h2 {
-                font-size: 1.2em;
-                margin-bottom: 15px;
-            }
-
-            .product-item {
-                padding: 15px;
-                margin-bottom: 15px;
-                border-radius: 12px;
-            }
-
-            .product-content {
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .product-image-left {
-                width: 100%;
-                text-align: center;
-            }
-
-            .product-image-left img {
-                width: 100% !important;
-                max-width: 280px !important;
-                height: auto !important;
-                aspect-ratio: 1;
-                object-fit: cover;
-            }
-
-            .product-details {
-                width: 100%;
-            }
-
-            .product-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-
-            .product-name {
-                font-size: 1em;
-            }
-
-            .product-price {
-                font-size: 1.1em;
-            }
-
-            .product-status {
-                font-size: 0.85em;
-                margin-bottom: 8px;
-            }
-
-            .quantity-control {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-
-            .quantity-control label {
-                margin-bottom: 0;
-            }
-
-            .quantity-control input {
-                width: 100%;
-                max-width: 120px;
-                padding: 10px;
-                font-size: 16px;
-            }
-
-            .btn-submit {
-                padding: 14px;
-                font-size: 16px;
-                margin-top: 20px;
-            }
-
-            .alert {
-                padding: 12px;
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-
-            .container {
-                border-radius: 12px;
-            }
-
-            /* Order Summary Extra Small Mobile */
-            #orderSummary {
-                padding: 12px !important;
-            }
-
-            #orderSummary h3 {
-                font-size: 1em !important;
-            }
-
-            #summaryItems {
-                padding: 8px !important;
-            }
-
-            #summaryItems > div {
-                padding: 8px !important;
-            }
-
-            #summaryItems > div > div:first-child > div:first-child {
-                font-size: 0.95em !important;
-            }
-
-            #summaryItems > div > div:first-child > div:last-child {
-                font-size: 0.85em !important;
-            }
-
-            #totalAmount {
-                font-size: 1.3em !important;
-            }
-
-            .header {
-                padding: 15px 10px;
-            }
-
-            .logo {
-                width: 70px;
-                height: 70px;
-            }
-
-            .header h1 {
-                font-size: 1.3em;
-            }
-
-            .phone-number {
-                font-size: 16px;
-            }
-
-            .form-container {
-                padding: 15px 10px;
-            }
-
-            input[type="text"],
-            input[type="tel"],
-            input[type="email"],
-            select {
-                padding: 8px;
-                font-size: 14px;
-            }
-
-            .email-group {
-                padding: 12px;
-            }
-
-            .email-input {
-                padding: 10px 12px;
-                font-size: 14px;
-            }
-
-            .product-item {
-                padding: 12px;
-            }
-
-            .product-name {
-                font-size: 0.95em;
-            }
-
-            .btn-submit {
-                padding: 12px;
-                font-size: 15px;
-            }
-        }
-            .phone-auth-card {
-            background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%);
-            border: 2px solid #667eea20;
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 25px;
-            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.12);
-        }
-        .phone-auth-title {
-            font-weight: 800;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .phone-auth-status {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 10px 12px;
-            color: #374151;
-            margin-bottom: 12px;
-            font-size: 0.95em;
-        }
-        .phone-auth-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .btn-secondary {
-            padding: 12px 14px;
-            border-radius: 10px;
-            border: 2px solid #667eea40;
-            background: white;
-            color: #4f46e5;
-            font-weight: 800;
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .btn-secondary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.18);
-        }
-        .btn-secondary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .hint-text {
-            margin-top: 8px;
-            color: #6b7280;
-            font-size: 0.9em;
-            line-height: 1.4;
-        }\n    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="logo-container">
-                <img src="{% static 'images/logo.png' %}" alt="مزرعة نوادر التين" class="logo">
+              <div id="manualCodeError" class="alert alert-danger" style="display:none;"></div>
+              <div id="manualCodeSuccess" class="alert alert-success" style="display:none;"></div>
             </div>
-            <h1>🛒 مزرعة نوادر التين</h1>
-            <div class="phone-number">☎ 20.707.272</div>
-            <div style="margin-top: 15px;">
-                <a href="{% url 'products_catalog' %}" style="display: inline-block; padding: 10px 25px; background: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 25px; font-weight: bold; border: 2px solid rgba(255, 255, 255, 0.3); transition: all 0.3s ease;">
-                    📚 تصفح جميع المنتجات
-                </a>
-            </div>
-        </div>
-        
-        <div class="form-container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" id="messageAlert">
-                    {{ message }}
+          </div>
+        {% else %}
+          <div class="panel" style="background:rgba(255,255,255,.03)" id="phoneAuthCard">
+            <div class="panel-title">تأكيد رقم الهاتف عبر SMS</div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="telephone">رقم الهاتف <span style="color:var(--danger)">*</span></label>
+                <input class="input" type="tel" id="telephone" name="telephone" required placeholder="+21620123456" inputmode="tel" autocomplete="tel" />
+                <div style="color:var(--muted);line-height:1.6">اكتب رقمك بصيغة دولية (مثال: +21620123456). يمكن أيضاً إدخال 8 أرقام وسيتم تحويلها تلقائياً إلى +216.</div>
+              </div>
+
+              <div id="recaptcha-container"></div>
+
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button type="button" id="sendOtpBtn" class="btn btn-primary">إرسال الرمز</button>
+              </div>
+
+              <div id="verifySection" style="display:none;">
+                <div class="field">
+                  <label for="otpCode">رمز التحقق (6 أرقام)</label>
+                  <input class="input" type="text" id="otpCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" />
                 </div>
-            {% endfor %}
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                  <button type="button" id="verifyOtpBtn" class="btn btn-primary">تأكيد الرمز</button>
+                </div>
+              </div>
+
+              <div id="phoneAuthStatus" class="alert" style="display:none;"></div>
+              <div id="phoneAuthError" class="alert alert-danger" style="display:none;"></div>
+              <div id="phoneAuthSuccess" class="alert alert-success" style="display:none;"></div>
+            </div>
+          </div>
         {% endif %}
 
-        <form method="POST" id="orderForm">
-            {% csrf_token %}
-            <input type="hidden" id="firebase_id_token" name="firebase_id_token">
-            
-            <div class="form-group">
-                <label for="nom">الاسم <span class="required">*</span></label>
-                <input type="text" id="nom" name="nom" required>
+<!-- Step 2: Delivery -->
+        <div class="panel" style="margin-top:14px;background:rgba(255,255,255,.03)">
+          <div class="panel-title">معلومات التوصيل</div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="nom">الاسم <span style="color:var(--danger)">*</span></label>
+              <input class="input" type="text" id="nom" name="nom" required />
             </div>
-
-            <div class="form-group">
-                <label for="wilaya">الولاية (تونس) <span class="required">*</span></label>
-                <select id="wilaya" name="wilaya" required>
-                    <option value="">اختر الولاية</option>
-                    <option value="تونس">تونس</option>
-                    <option value="أريانة">أريانة</option>
-                    <option value="بن عروس">بن عروس</option>
-                    <option value="منوبة">منوبة</option>
-                    <option value="نابل">نابل</option>
-                    <option value="زغوان">زغوان</option>
-                    <option value="بنزرت">بنزرت</option>
-                    <option value="باجة">باجة</option>
-                    <option value="جندوبة">جندوبة</option>
-                    <option value="الكاف">الكاف</option>
-                    <option value="سليانة">سليانة</option>
-                    <option value="سوسة">سوسة</option>
-                    <option value="المنستير">المنستير</option>
-                    <option value="المهدية">المهدية</option>
-                    <option value="صفاقس">صفاقس</option>
-                    <option value="القيروان">القيروان</option>
-                    <option value="القصرين">القصرين</option>
-                    <option value="سيدي بوزيد">سيدي بوزيد</option>
-                    <option value="قابس">قابس</option>
-                    <option value="مدنين">مدنين</option>
-                    <option value="تطاوين">تطاوين</option>
-                    <option value="قفصة">قفصة</option>
-                    <option value="توزر">توزر</option>
-                    <option value="قبلي">قبلي</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="ville">المدينة <span class="required">*</span></label>
-                <input type="text" id="ville" name="ville" required>
-            </div>
-
-            <div class="form-group">
-                <label for="telephone">رقم الهاتف <span class="required">*</span></label>
-                <input type="tel" id="telephone" name="telephone" required placeholder="+21620123456" inputmode="tel" autocomplete="tel">
-                <div class="hint-text">اكتب رقمك بصيغة دولية (مثال: +21620123456). يمكن أيضا إدخال 8 أرقام وسيتم تحويلها تلقائيا إلى +216.</div>
-            </div>
-
             {% if phone_verification_mode == 'static_code' %}
-            <div class="phone-auth-card" id="manualCodeCard">
-                <div class="phone-auth-title">تأكيد الطلب عبر رمز</div>
-                <div id="manualCodeStatus" class="phone-auth-status" style="display:none;"></div>
-
-                <label for="manualCode">الرمز</label>
-                <input type="text" id="manualCode" name="manual_verification_code" inputmode="numeric" autocomplete="one-time-code" placeholder="20707272" required>
-
-                <div class="phone-auth-actions" style="margin-top: 10px;">
-                    <button type="button" id="verifyManualCodeBtn" class="btn-secondary">تأكيد الرمز</button>
-                </div>
-
-                <div class="hint-text">أدخل الرمز الذي أعطيناه لك (مؤقتا: 20707272) ثم اضغط "تأكيد الرمز".</div>
-                <div id="manualCodeError" class="alert alert-error" style="display:none; margin-top: 12px;"></div>
-                <div id="manualCodeSuccess" class="alert alert-success" style="display:none; margin-top: 12px;"></div>
+            <div class="field">
+              <label for="telephone">رقم الهاتف <span style="color:var(--danger)">*</span></label>
+              <input class="input" type="tel" id="telephone" name="telephone" required placeholder="+21620123456" inputmode="tel" autocomplete="tel" />
+              <div style="color:var(--muted);line-height:1.6">اكتب رقمك بصيغة دولية (مثال: +21620123456). يمكن أيضاً إدخال 8 أرقام وسيتم تحويلها تلقائياً إلى +216.</div>
             </div>
-{% else %}
-<div class="phone-auth-card" id="phoneAuthCard">
-                <div class="phone-auth-title"> تأكيد رقم الهاتف عبر SMS</div>
-                <div id="phoneAuthStatus" class="phone-auth-status" style="display:none;"></div>
-
-                <div id="recaptcha-container"></div>
-
-                <div class="phone-auth-actions">
-                    <button type="button" id="sendOtpBtn" class="btn-secondary">إرسال الرمز</button>
-                </div>
-
-                <div id="verifySection" style="display:none; margin-top: 12px;">
-                    <label for="otpCode">رمز التحقق (6 أرقام)</label>
-                    <input type="text" id="otpCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
-                    <div class="phone-auth-actions" style="margin-top: 10px;">
-                        <button type="button" id="verifyOtpBtn" class="btn-secondary">تأكيد الرمز</button>
-                    </div>
-                </div>
-
-                <div id="phoneAuthError" class="alert alert-error" style="display:none; margin-top: 12px;"></div>
-                <div id="phoneAuthSuccess" class="alert alert-success" style="display:none; margin-top: 12px;"></div>
-            
-{% endif %}
-</div>
-
-            <div class="form-group email-group">
-                <label for="email">📧 البريد الإلكتروني (اختياري)</label>
-                <input type="email" id="email" name="email" placeholder="example@email.com" class="email-input">
-                <div class="email-help">
-                    <i class="email-icon">✉️</i>
-                    <span class="email-text">سنرسل لك نسخة من طلبك عبر البريد الإلكتروني</span>
-                </div>
+            {% endif %}
+            <div class="field">
+              <label for="wilaya">الولاية <span style="color:var(--danger)">*</span></label>
+              <select class="input" id="wilaya" name="wilaya" required>
+                <option value="">اختر الولاية</option>
+                <option value="تونس">تونس</option>
+                <option value="أريانة">أريانة</option>
+                <option value="بن عروس">بن عروس</option>
+                <option value="منوبة">منوبة</option>
+                <option value="نابل">نابل</option>
+                <option value="زغوان">زغوان</option>
+                <option value="بنزرت">بنزرت</option>
+                <option value="باجة">باجة</option>
+                <option value="جندوبة">جندوبة</option>
+                <option value="الكاف">الكاف</option>
+                <option value="سليانة">سليانة</option>
+                <option value="سوسة">سوسة</option>
+                <option value="المنستير">المنستير</option>
+                <option value="المهدية">المهدية</option>
+                <option value="صفاقس">صفاقس</option>
+                <option value="القيروان">القيروان</option>
+                <option value="القصرين">القصرين</option>
+                <option value="سيدي بوزيد">سيدي بوزيد</option>
+                <option value="قابس">قابس</option>
+                <option value="مدنين">مدنين</option>
+                <option value="تطاوين">تطاوين</option>
+                <option value="قفصة">قفصة</option>
+                <option value="توزر">توزر</option>
+                <option value="قبلي">قبلي</option>
+              </select>
             </div>
 
-            <!-- Order Summary Section -->
-            <div id="orderSummary" style="display: none; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 25px; margin-bottom: 30px; box-shadow: 0 8px 24px rgba(14, 165, 233, 0.15);">
-                <h3 style="color: #0369a1; margin-bottom: 20px; font-size: 1.3em; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.5em;">📋</span>
-                    ملخص الطلب
-                </h3>
-                <div id="summaryItems" style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
-                    <!-- Summary items will be added here dynamically -->
-                </div>
-                <div style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);">
-                    <div style="font-size: 1.1em; margin-bottom: 5px; opacity: 0.95;">المجموع الإجمالي</div>
-                    <div id="totalAmount" style="font-size: 2em; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">0.00 د.ت</div>
-                </div>
+            <div class="field">
+              <label for="ville">المدينة <span style="color:var(--danger)">*</span></label>
+              <input class="input" type="text" id="ville" name="ville" required />
             </div>
 
-            <div class="product-list">
-                <h2 style="color: #667eea; margin-bottom: 20px;">المنتجات المتوفرة</h2>
-                
-                {% for produit in produits %}
-                <div class="product-item {% if produit.quantite == 0 %}unavailable{% endif %}">
-                    <div class="product-content">
-                        {% if produit.image %}
-                        <div class="product-image-left">
-                            <img src="{{ produit.image.url }}" alt="{{ produit.nom }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
-                        </div>
-                        {% endif %}
-
-                        <div class="product-details">
-                            <div class="product-header">
-                                <span class="product-name">{{ produit.nom }}</span>
-                                <span class="product-price">{{ produit.prix_vente }} د.ت</span>
-                            </div>
-
-                            <div class="product-status">
-                                {% if produit.quantite > 0 %}
-                                    <span class="available">✓ متوفر </span>
-                                {% else %}
-                                    <span class="unavailable-text">✗ المنتج الآن غير متوفر</span>
-                                {% endif %}
-                            </div>
-
-                            <div style="margin-bottom: 10px;">
-                                <a href="{% url 'product_detail' produit.id %}" style="color: #667eea; text-decoration: none; font-size: 0.9em; font-weight: 600;">
-                                    📖 معلومات أكثر عن المنتج ←
-                                </a>
-                            </div>
-
-                            {% if produit.quantite > 0 %}
-                            <div class="quantity-control">
-                                <label for="product_{{ produit.id }}">الكمية:</label>
-                                <input type="number"
-                                       id="product_{{ produit.id }}"
-                                       name="product_{{ produit.id }}"
-                                       min="0"
-                                       max="{{ produit.quantite }}"
-                                       value=""
-                                       class="product-quantity"
-                                       data-product-name="{{ produit.nom }}"
-                                       data-product-price="{{ produit.prix_vente }}"
-                                       onchange="updateOrderSummary()">
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+            <div class="field">
+              <label for="email">البريد الإلكتروني (اختياري)</label>
+              <input class="input" type="email" id="email" name="email" placeholder="example@email.com" />
             </div>
-
-            <button type="submit" id="placeOrderBtn" class="btn-submit" disabled title="{% if phone_verification_mode == 'static_code' %}يجب إدخال الرمز أولا{% else %}يجب تأكيد رقم الهاتف أولا{% endif %}">تأكيد الطلب</button>
-        </form>
+          </div>
         </div>
+
+        <!-- Step 3: Products -->
+        <div class="panel" style="margin-top:14px;background:rgba(255,255,255,.03)" id="catalog">
+          <div class="panel-title">المنتجات</div>
+          <div class="grid" style="gap:12px">
+            {% for produit in produits %}
+              <div class="card" style="padding:12px">
+                <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+                  <div style="display:flex;gap:12px;align-items:center;min-width:220px">
+                    {% if produit.image %}
+                      <img src="{{ produit.image.url }}" alt="" width="56" height="56" style="border-radius:12px;object-fit:cover" loading="lazy" decoding="async" />
+                    {% endif %}
+                    <div>
+                      <div style="font-weight:950">{{ produit.nom }}</div>
+                      <div style="color:rgba(229,231,235,.70)">{{ produit.prix_vente }} د.ت</div>
+                      {% if produit.quantite > 0 %}
+                        <div class="status ok" style="margin-top:6px">متوفر ({{ produit.quantite }})</div>
+                      {% else %}
+                        <div class="status no" style="margin-top:6px">غير متوفر</div>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  {% if produit.quantite > 0 %}
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                      <label for="product_{{ produit.id }}">الكمية</label>
+                      <input
+                        class="input qty-input product-quantity"
+                        type="number"
+                        id="product_{{ produit.id }}"
+                        name="product_{{ produit.id }}"
+                        min="0"
+                        max="{{ produit.quantite }}"
+                        value=""
+                        data-product-name="{{ produit.nom|escape }}"
+                        data-product-price="{{ produit.prix_vente }}"
+                      />
+                      <button class="btn btn-ghost" type="button"
+                        onclick="window.storeAddToCart({ id: '{{ produit.id }}', name: '{{ produit.nom|escapejs }}', price: '{{ produit.prix_vente }}', imageUrl: '{% if produit.image %}{{ produit.image.url }}{% endif %}' }); window.scrollTo({top:0, behavior:'smooth'});">
+                        + للسلة
+                      </button>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button type="submit" id="placeOrderBtn" class="btn btn-primary" style="width:100%;margin-top:14px" disabled>
+          تأكيد الطلب
+        </button>
+      </form>
     </div>
 
-    <script>
-        // LocalStorage functions for saving/loading order data
-        const ORDER_STORAGE_KEY = 'pendingOrder';
-        
-        function saveOrderToStorage() {
-            const orderData = {
-                nom: document.getElementById('nom').value,
-                wilaya: document.getElementById('wilaya').value,
-                ville: document.getElementById('ville').value,
-                telephone: document.getElementById('telephone').value,
-                email: document.getElementById('email').value,
-                products: {}
-            };
-            
-            // Save product quantities
-            const quantities = document.querySelectorAll('.product-quantity');
-            quantities.forEach(input => {
-                if (input.value && parseInt(input.value) > 0) {
-                    orderData.products[input.id] = input.value;
-                }
-            });
-            
-            // Only save if there's any data
-            if (orderData.nom || orderData.wilaya || orderData.ville || 
-                orderData.telephone || orderData.email || 
-                Object.keys(orderData.products).length > 0) {
-                localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orderData));
-            }
-        }
-        
-        function loadOrderFromStorage() {
-            const savedData = localStorage.getItem(ORDER_STORAGE_KEY);
-            if (!savedData) return;
-            
-            try {
-                const orderData = JSON.parse(savedData);
-                
-                // Restore form fields
-                if (orderData.nom) document.getElementById('nom').value = orderData.nom;
-                if (orderData.wilaya) document.getElementById('wilaya').value = orderData.wilaya;
-                if (orderData.ville) document.getElementById('ville').value = orderData.ville;
-                if (orderData.telephone) document.getElementById('telephone').value = orderData.telephone;
-                if (orderData.email) document.getElementById('email').value = orderData.email;
-                
-                // Restore product quantities
-                if (orderData.products) {
-                    Object.keys(orderData.products).forEach(productId => {
-                        const input = document.getElementById(productId);
-                        if (input) {
-                            input.value = orderData.products[productId];
-                        }
-                    });
-                }
-                
-                // Update summary after loading
-                updateOrderSummary();
-            } catch (e) {
-                console.error('Error loading saved order:', e);
-            }
-        }
-        
-        function clearOrderFromStorage() {
-            localStorage.removeItem(ORDER_STORAGE_KEY);
-        }
-        
-        function updateOrderSummary() {
-            const summaryDiv = document.getElementById('orderSummary');
-            const summaryItems = document.getElementById('summaryItems');
-            const totalAmount = document.getElementById('totalAmount');
-            const quantities = document.querySelectorAll('.product-quantity');
-            
-            let hasItems = false;
-            let total = 0;
-            let summaryHTML = '';
-            
-            quantities.forEach(input => {
-                const quantity = parseInt(input.value) || 0;
-                if (quantity > 0) {
-                    hasItems = true;
-                    const productName = input.getAttribute('data-product-name');
-                    const productPrice = parseFloat(input.getAttribute('data-product-price'));
-                    const itemTotal = quantity * productPrice;
-                    total += itemTotal;
-                    
-                    summaryHTML += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #e5e7eb; transition: background 0.2s;">
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">${productName}</div>
-                                <div style="color: #6b7280; font-size: 0.9em;">
-                                    ${quantity} × ${productPrice.toFixed(2)} د.ت
-                                </div>
-                            </div>
-                            <div style="font-weight: bold; color: #0369a1; font-size: 1.1em;">
-                                ${itemTotal.toFixed(2)} د.ت
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-            
-            if (hasItems) {
-                summaryDiv.style.display = 'block';
-                summaryItems.innerHTML = summaryHTML;
-                totalAmount.textContent = total.toFixed(2) + ' د.ت';
-            } else {
-                summaryDiv.style.display = 'none';
-            }
-            
-            // Save to storage after updating summary
-            saveOrderToStorage();
-        }
+    <aside class="checkout-aside">
+      <div class="panel">
+        <div class="panel-title">ملخص الطلب</div>
+        <div id="orderSummary" style="display:none;">
+          <div id="summaryItems" class="grid" style="gap:10px"></div>
+          <div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="color:var(--muted)">الإجمالي</div>
+            <div id="totalAmount" style="font-size:22px;font-weight:950">0.00 د.ت</div>
+          </div>
+        </div>
+        <div id="summaryEmpty" style="color:var(--muted);line-height:1.7">اختر المنتجات لتظهر هنا.</div>
 
-        // Submit handling moved to Firebase Phone OTP module
+        <div style="margin-top:14px">
+          <a class="btn btn-ghost" href="{% url 'cart' %}">عرض السلة</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load saved order data
-            loadOrderFromStorage();
-            
-            // Add event listeners to form fields to save on change
-            document.getElementById('nom').addEventListener('input', saveOrderToStorage);
-            document.getElementById('wilaya').addEventListener('change', saveOrderToStorage);
-            document.getElementById('ville').addEventListener('input', saveOrderToStorage);
-            document.getElementById('telephone').addEventListener('input', saveOrderToStorage);
-            document.getElementById('email').addEventListener('input', saveOrderToStorage);
-            
-            // Product quantities already have onchange="updateOrderSummary()" which calls saveOrderToStorage
-            
-            // Update summary
-            updateOrderSummary();
-            
-            // Scroll to success/error message if exists after order submission
-            const alertDiv = document.getElementById('messageAlert');
-            if (alertDiv) {
-                setTimeout(function() {
-                    // Scroll to top of page to show the message
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    
-                    // Add emphasis animation
-                    alertDiv.style.animation = 'pulse 0.5s ease-in-out 2';
-                }, 100);
-            }
-        });
-        
-        // Add pulse animation for message alert
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.02); box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3); }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
+{% block extra_scripts %}
+<script>
+  const ORDER_STORAGE_KEY = 'pendingOrder';
+
+  function saveOrderToStorage() {
+    const orderData = {
+      nom: document.getElementById('nom')?.value || '',
+      wilaya: document.getElementById('wilaya')?.value || '',
+      ville: document.getElementById('ville')?.value || '',
+      telephone: document.getElementById('telephone')?.value || '',
+      email: document.getElementById('email')?.value || '',
+      products: {},
+      cartItems: []
+    };
+
+    const quantities = document.querySelectorAll('.product-quantity');
+    quantities.forEach((input) => {
+      const qty = parseInt(input.value, 10) || 0;
+      if (qty > 0) orderData.products[input.id] = qty;
+    });
+
+    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orderData));
+  }
+
+  function loadOrderFromStorage() {
+    try {
+      const raw = localStorage.getItem(ORDER_STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+
+      if (data.nom) document.getElementById('nom').value = data.nom;
+      if (data.wilaya) document.getElementById('wilaya').value = data.wilaya;
+      if (data.ville) document.getElementById('ville').value = data.ville;
+      if (data.telephone && document.getElementById('telephone')) document.getElementById('telephone').value = data.telephone;
+      if (data.email) document.getElementById('email').value = data.email;
+
+      const products = data.products || {};
+      Object.keys(products).forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) input.value = products[id];
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function updateOrderSummary() {
+    const summary = document.getElementById('orderSummary');
+    const empty = document.getElementById('summaryEmpty');
+    const list = document.getElementById('summaryItems');
+    const totalEl = document.getElementById('totalAmount');
+
+    const quantities = document.querySelectorAll('.product-quantity');
+    let total = 0;
+    const items = [];
+
+    quantities.forEach((input) => {
+      const qty = parseInt(input.value, 10) || 0;
+      if (qty <= 0) return;
+
+      const name = input.getAttribute('data-product-name') || '';
+      const price = parseFloat(input.getAttribute('data-product-price') || '0') || 0;
+      total += qty * price;
+      items.push({ name, qty, price });
+    });
+
+    if (!items.length) {
+      summary.style.display = 'none';
+      empty.style.display = 'block';
+      list.innerHTML = '';
+      totalEl.textContent = '0.00 د.ت';
+      saveOrderToStorage();
+      return;
+    }
+
+    empty.style.display = 'none';
+    summary.style.display = 'block';
+    list.innerHTML = '';
+
+    items.forEach((it) => {
+      const row = document.createElement('div');
+      row.className = 'card';
+      row.style.padding = '10px';
+      row.innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+        <div style="font-weight:900">${it.name}</div>
+        <div style="color:rgba(229,231,235,.70)">${it.qty} × ${it.price.toFixed(2)}</div>
+      </div>`;
+      list.appendChild(row);
+    });
+
+    totalEl.textContent = `${total.toFixed(2)} د.ت`;
+    saveOrderToStorage();
+  }
+
+  function initCheckout() {
+    loadOrderFromStorage();
+
+    document.querySelectorAll('.product-quantity').forEach((input) => {
+      input.addEventListener('input', updateOrderSummary);
+      input.addEventListener('change', updateOrderSummary);
+    });
+
+    ['nom','wilaya','ville','telephone','email'].forEach((id) => {
+      const el = document.getElementById(id);
+      el?.addEventListener('input', saveOrderToStorage);
+      el?.addEventListener('change', saveOrderToStorage);
+    });
+
+    updateOrderSummary();
+  }
+
+  document.addEventListener('DOMContentLoaded', initCheckout);
+</script>
+
 {% if phone_verification_mode == 'static_code' %}
 <script type="module" src="{% static 'js/order_manual_code.js' %}"></script>
 {% else %}
 <script type="module" src="{% static 'js/order_phone_otp.js' %}"></script>
 {% endif %}
-</body>
-</html>
-
-
-
-
-
+{% endblock %}

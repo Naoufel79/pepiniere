@@ -379,7 +379,8 @@ def update_order_status(request, order_id):
 def product_detail(request, product_id):
     """Public product detail page showing product information and description"""
     produit = get_object_or_404(Produit, id=product_id)
-    return render(request, 'product_detail.html', {'produit': produit})
+    similar_products = Produit.objects.exclude(id=produit.id).order_by('nom')[:6]
+    return render(request, 'product_detail.html', {'produit': produit, 'similar_products': similar_products})
 
 
 def products_catalog(request):
@@ -387,6 +388,11 @@ def products_catalog(request):
     produits = Produit.objects.all().order_by('nom')
     return render(request, 'products_catalog.html', {'produits': produits})
 
+
+
+def cart(request):
+    """Public cart page (client-side localStorage)"""
+    return render(request, 'cart.html')
 
 @login_required
 def export_orders(request):
