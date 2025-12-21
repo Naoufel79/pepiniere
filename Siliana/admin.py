@@ -11,7 +11,7 @@ class SafeAdminFileWidget(AdminFileWidget):
     def render(self, name, value, attrs=None, renderer=None):
         try:
             return super().render(name, value, attrs=attrs, renderer=renderer)
-        except ValueError:
+        except Exception:
             return super().render(name, None, attrs=attrs, renderer=renderer)
 
 
