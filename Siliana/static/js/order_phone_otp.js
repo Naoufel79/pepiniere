@@ -50,8 +50,14 @@ function getFriendlyAuthError(err) {
 
   if (code.includes("auth/invalid-phone-number")) return "رقم الهاتف غير صحيح. الرجاء إدخال الرقم بصيغة دولية مثل +21620123456";
   if (code.includes("auth/missing-phone-number")) return "الرجاء إدخال رقم الهاتف.";
+  if (code.includes("auth/operation-not-allowed")) return "خدمة التحقق عبر الهاتف غير مفعّلة في Firebase. فعّل Phone Sign-in من Firebase Console ثم أعد المحاولة.";
   if (code.includes("auth/too-many-requests")) return "تم إرسال طلبات كثيرة جدا. الرجاء المحاولة لاحقا.";
   if (code.includes("auth/captcha-check-failed")) return "تعذر التحقق من reCAPTCHA. الرجاء تحديث الصفحة والمحاولة مرة أخرى.";
+  if (code.includes("auth/app-not-authorized")) return "التطبيق غير مصرح به لاستخدام Phone Auth. تأكد أنك تستخدم إعدادات Firebase (apiKey / authDomain) الخاصة بمشروع Prod، وأضف دومين Railway ضمن Authorized domains.";
+  if (code.includes("auth/unauthorized-domain")) return "هذا الدومين غير مصرح به. أضفه في Firebase Console → Authentication → Settings → Authorized domains ثم أعد المحاولة.";
+  if (code.includes("auth/invalid-app-credential")) return "فشل التحقق من بيانات التطبيق (reCAPTCHA/credential). تأكد أن الدومين مصرح به وأن reCAPTCHA غير محجوبة (AdBlock/VPN) ثم أعد المحاولة.";
+  if (code.includes("auth/missing-app-credential")) return "reCAPTCHA لم يعمل. حدّث الصفحة ثم أعد المحاولة، وتأكد أن الدومين مصرح به ضمن Firebase Authorized domains.";
+  if (code.includes("auth/quota-exceeded")) return "تم تجاوز حصة إرسال رسائل SMS لهذا المشروع. جرّب لاحقاً أو استخدم أرقام اختبار في Firebase.";
   if (code.includes("auth/invalid-verification-code")) return "رمز التحقق غير صحيح.";
   if (code.includes("auth/code-expired")) return "انتهت صلاحية الرمز. الرجاء طلب رمز جديد.";
 
