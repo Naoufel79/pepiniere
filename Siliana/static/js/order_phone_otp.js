@@ -58,10 +58,13 @@ function getFriendlyAuthError(err) {
   if (code.includes("auth/invalid-app-credential")) return "فشل التحقق من بيانات التطبيق (reCAPTCHA/credential). تأكد أن الدومين مصرح به وأن reCAPTCHA غير محجوبة (AdBlock/VPN) ثم أعد المحاولة.";
   if (code.includes("auth/missing-app-credential")) return "reCAPTCHA لم يعمل. حدّث الصفحة ثم أعد المحاولة، وتأكد أن الدومين مصرح به ضمن Firebase Authorized domains.";
   if (code.includes("auth/quota-exceeded")) return "تم تجاوز حصة إرسال رسائل SMS لهذا المشروع. جرّب لاحقاً أو استخدم أرقام اختبار في Firebase.";
+  if (code.includes("auth/billing-not-enabled")) return "خدمة SMS تتطلب تفعيل الفوترة (Billing) لهذا المشروع على Google Cloud/Firebase. فعّل Billing (Blaze/حساب فوترة) أو استخدم أرقام الاختبار في Firebase أثناء التطوير.";
   if (code.includes("auth/invalid-verification-code")) return "رمز التحقق غير صحيح.";
   if (code.includes("auth/code-expired")) return "انتهت صلاحية الرمز. الرجاء طلب رمز جديد.";
 
   if (code) return `حدث خطأ (${code}). الرجاء المحاولة مرة أخرى.`;
+  const msg = err?.message || "";
+  if (msg) return `حدث خطأ: ${msg}`;
   return "حدث خطأ. الرجاء المحاولة مرة أخرى.";
 }
 
@@ -175,6 +178,18 @@ async function sendOtp() {
 
   if (!phoneNumber.startsWith("+")) {
     setAuthMessage({ error: "الرجاء إدخال الرقم بصيغة دولية (E.164) مثل +21620123456" });
+    return;
+  }
+
+  // Basic E.164 sanity check (+ and 8-15 digits).
+  if (!/^\+\d{8,15}$/.test(phoneNumber)) {
+    setAuthMessage({ error: "رقم الهاتف غير صحيح. مثال صحيح: +21620123456" });
+    return;
+  }
+
+  // Tunisia numbers must be +216 followed by 8 digits.
+  if (phoneNumber.startsWith("+216") && !/^\+216\d{8}$/.test(phoneNumber)) {
+    setAuthMessage({ error: "رقم تونس يجب أن يكون +216 متبوعاً بـ 8 أرقام (مثال: +21620123456)" });
     return;
   }
 
