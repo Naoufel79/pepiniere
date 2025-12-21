@@ -52,3 +52,5 @@ CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS'
 # SECURE_SSL_REDIRECT = True  # Railway handles SSL automatically
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+SERVE_MEDIA = True
