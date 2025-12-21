@@ -10,6 +10,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from django.core.mail import send_mail
 from django.conf import settings
+import os
 from .firebase_admin import verify_firebase_id_token
 
 
@@ -180,20 +181,37 @@ def sales_report(request):
 def public_order(request):
     """Public order page for unlogged users"""
     produits = Produit.objects.all().order_by('nom')
+
+    mode = (os.environ.get('PHONE_VERIFICATION_MODE', 'firebase') or 'firebase').strip().lower()
+    if mode not in ('firebase', 'static_code'):
+        mode = 'firebase'
+
+    context = {'produits': produits, 'phone_verification_mode': mode}
+
     
     if request.method == 'POST':
-        id_token = request.POST.get('firebase_id_token', '').strip()
-        if not id_token:
-            messages.error(request, 'الرجاء تأكيد رقم الهاتف قبل إرسال الطلب')
-            return render(request, 'public_order.html', {'produits': produits})
+        verified_phone = None
 
-        try:
-            decoded = verify_firebase_id_token(id_token)
-        except Exception:
-            messages.error(request, 'تعذر التحقق من رقم الهاتف. الرجاء المحاولة مرة أخرى.')
-            return render(request, 'public_order.html', {'produits': produits})
+        if mode == 'static_code':
+            expected_code = (os.environ.get('PHONE_VERIFICATION_CODE') or '').strip()
+            provided_code = (request.POST.get('manual_verification_code') or '').strip()
 
-        verified_phone = decoded.get('phone_number')
+            if not expected_code or provided_code != expected_code:
+                messages.error(request, 'رمز التحقق غير صحيح')
+                return render(request, 'public_order.html', context)
+        else:
+            id_token = (request.POST.get('firebase_id_token') or '').strip()
+            if not id_token:
+                messages.error(request, 'الرجاء تأكيد رقم الهاتف قبل إرسال الطلب')
+                return render(request, 'public_order.html', context)
+
+            try:
+                decoded = verify_firebase_id_token(id_token)
+            except Exception:
+                messages.error(request, 'تعذر التحقق من رقم الهاتف. الرجاء المحاولة مرة أخرى.')
+                return render(request, 'public_order.html', context)
+
+            verified_phone = decoded.get('phone_number')
 
         nom = request.POST.get('nom')
         email = request.POST.get('email', '').strip()
@@ -204,7 +222,7 @@ def public_order(request):
         # Validate required fields
         if not all([nom, wilaya, ville, telephone]):
             messages.error(request, 'الرجاء ملء جميع الحقول المطلوبة')
-            return render(request, 'public_order.html', {'produits': produits})
+            return render(request, 'public_order.html', context)
         
         # Create order with transaction
         try:
@@ -240,12 +258,12 @@ def public_order(request):
                             has_items = True
                         else:
                             messages.error(request, f'الكمية المطلوبة من {produit.nom} غير متوفرة')
-                            return render(request, 'public_order.html', {'produits': produits})
+                            return render(request, 'public_order.html', context)
                 
                 if not has_items:
                     order.delete()
                     messages.error(request, 'الرجاء اختيار منتج واحد على الأقل')
-                    return render(request, 'public_order.html', {'produits': produits})
+                    return render(request, 'public_order.html', context)
                 
                 # Send confirmation email if email was provided
                 if email:
@@ -308,7 +326,7 @@ def public_order(request):
         except Exception as e:
             messages.error(request, f'حدث خطأ: {str(e)}')
     
-    return render(request, 'public_order.html', {'produits': produits})
+    return render(request, 'public_order.html', context)
 
 
 @login_required

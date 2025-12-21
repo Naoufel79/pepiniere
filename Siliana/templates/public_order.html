@@ -685,7 +685,24 @@
                 <div class="hint-text">اكتب رقمك بصيغة دولية (مثال: +21620123456). يمكن أيضا إدخال 8 أرقام وسيتم تحويلها تلقائيا إلى +216.</div>
             </div>
 
-            <div class="phone-auth-card" id="phoneAuthCard">
+            {% if phone_verification_mode == 'static_code' %}
+            <div class="phone-auth-card" id="manualCodeCard">
+                <div class="phone-auth-title">تأكيد الطلب عبر رمز</div>
+                <div id="manualCodeStatus" class="phone-auth-status" style="display:none;"></div>
+
+                <label for="manualCode">الرمز</label>
+                <input type="text" id="manualCode" name="manual_verification_code" inputmode="numeric" autocomplete="one-time-code" placeholder="20707272" required>
+
+                <div class="phone-auth-actions" style="margin-top: 10px;">
+                    <button type="button" id="verifyManualCodeBtn" class="btn-secondary">تأكيد الرمز</button>
+                </div>
+
+                <div class="hint-text">أدخل الرمز الذي أعطيناه لك (مؤقتا: 20707272) ثم اضغط "تأكيد الرمز".</div>
+                <div id="manualCodeError" class="alert alert-error" style="display:none; margin-top: 12px;"></div>
+                <div id="manualCodeSuccess" class="alert alert-success" style="display:none; margin-top: 12px;"></div>
+            </div>
+{% else %}
+<div class="phone-auth-card" id="phoneAuthCard">
                 <div class="phone-auth-title"> تأكيد رقم الهاتف عبر SMS</div>
                 <div id="phoneAuthStatus" class="phone-auth-status" style="display:none;"></div>
 
@@ -705,7 +722,9 @@
 
                 <div id="phoneAuthError" class="alert alert-error" style="display:none; margin-top: 12px;"></div>
                 <div id="phoneAuthSuccess" class="alert alert-success" style="display:none; margin-top: 12px;"></div>
-            </div>
+            
+{% endif %}
+</div>
 
             <div class="form-group email-group">
                 <label for="email">📧 البريد الإلكتروني (اختياري)</label>
@@ -784,7 +803,7 @@
                 {% endfor %}
             </div>
 
-            <button type="submit" id="placeOrderBtn" class="btn-submit" disabled title="يجب تأكيد رقم الهاتف أولا">تأكيد الطلب</button>
+            <button type="submit" id="placeOrderBtn" class="btn-submit" disabled title="{% if phone_verification_mode == 'static_code' %}يجب إدخال الرمز أولا{% else %}يجب تأكيد رقم الهاتف أولا{% endif %}">تأكيد الطلب</button>
         </form>
         </div>
     </div>
@@ -943,7 +962,11 @@
         `;
         document.head.appendChild(style);
     </script>
+{% if phone_verification_mode == 'static_code' %}
+<script type="module" src="{% static 'js/order_manual_code.js' %}"></script>
+{% else %}
 <script type="module" src="{% static 'js/order_phone_otp.js' %}"></script>
+{% endif %}
 </body>
 </html>
 
