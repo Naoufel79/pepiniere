@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -558,7 +558,57 @@
                 font-size: 15px;
             }
         }
-    </style>
+            .phone-auth-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%);
+            border: 2px solid #667eea20;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.12);
+        }
+        .phone-auth-title {
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .phone-auth-status {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #374151;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+        .phone-auth-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-secondary {
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 2px solid #667eea40;
+            background: white;
+            color: #4f46e5;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.18);
+        }
+        .btn-secondary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .hint-text {
+            margin-top: 8px;
+            color: #6b7280;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }\n    </style>
 </head>
 <body>
     <div class="container">
@@ -586,6 +636,7 @@
 
         <form method="POST" id="orderForm">
             {% csrf_token %}
+            <input type="hidden" id="firebase_id_token" name="firebase_id_token">
             
             <div class="form-group">
                 <label for="nom">الاسم <span class="required">*</span></label>
@@ -630,7 +681,30 @@
 
             <div class="form-group">
                 <label for="telephone">رقم الهاتف <span class="required">*</span></label>
-                <input type="tel" id="telephone" name="telephone" required placeholder="مثال: 20123456">
+                <input type="tel" id="telephone" name="telephone" required placeholder="+21620123456" inputmode="tel" autocomplete="tel">
+                <div class="hint-text">اكتب رقمك بصيغة دولية (مثال: +21620123456). يمكن أيضا إدخال 8 أرقام وسيتم تحويلها تلقائيا إلى +216.</div>
+            </div>
+
+            <div class="phone-auth-card" id="phoneAuthCard">
+                <div class="phone-auth-title"> تأكيد رقم الهاتف عبر SMS</div>
+                <div id="phoneAuthStatus" class="phone-auth-status" style="display:none;"></div>
+
+                <div id="recaptcha-container"></div>
+
+                <div class="phone-auth-actions">
+                    <button type="button" id="sendOtpBtn" class="btn-secondary">إرسال الرمز</button>
+                </div>
+
+                <div id="verifySection" style="display:none; margin-top: 12px;">
+                    <label for="otpCode">رمز التحقق (6 أرقام)</label>
+                    <input type="text" id="otpCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
+                    <div class="phone-auth-actions" style="margin-top: 10px;">
+                        <button type="button" id="verifyOtpBtn" class="btn-secondary">تأكيد الرمز</button>
+                    </div>
+                </div>
+
+                <div id="phoneAuthError" class="alert alert-error" style="display:none; margin-top: 12px;"></div>
+                <div id="phoneAuthSuccess" class="alert alert-success" style="display:none; margin-top: 12px;"></div>
             </div>
 
             <div class="form-group email-group">
@@ -710,7 +784,7 @@
                 {% endfor %}
             </div>
 
-            <button type="submit" class="btn-submit">تأكيد الطلب</button>
+            <button type="submit" id="placeOrderBtn" class="btn-submit" disabled title="يجب تأكيد رقم الهاتف أولا">تأكيد الطلب</button>
         </form>
         </div>
     </div>
@@ -826,34 +900,8 @@
             // Save to storage after updating summary
             saveOrderToStorage();
         }
-        
-        document.getElementById('orderForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // Always prevent default first
-            
-            let hasProducts = false;
-            const quantities = document.querySelectorAll('.product-quantity');
-            
-            quantities.forEach(input => {
-                if (parseInt(input.value) > 0) {
-                    hasProducts = true;
-                }
-            });
-            
-            if (!hasProducts) {
-                alert('الرجاء اختيار منتج واحد على الأقل');
-                return;
-            }
-            
-            // Show confirmation dialog
-            const confirmed = confirm('هل أنت متأكد من إرسال طلبك؟\n\nسيتم إرسال طلبك وسنتصل بك قريباً.');
-            
-            if (confirmed) {
-                // Clear storage before submission
-                clearOrderFromStorage();
-                // Submit the form
-                this.submit();
-            }
-        });
+
+        // Submit handling moved to Firebase Phone OTP module
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -895,5 +943,11 @@
         `;
         document.head.appendChild(style);
     </script>
+<script type="module" src="{% static 'js/order_phone_otp.js' %}"></script>
 </body>
 </html>
+
+
+
+
+

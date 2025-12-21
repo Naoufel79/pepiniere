@@ -1,7 +1,9 @@
-Django>=5.2
+﻿Django>=5.2
 openpyxl
 Pillow
 dj-database-url
 whitenoise
 gunicorn
 psycopg2-binary
+firebase-admin
+

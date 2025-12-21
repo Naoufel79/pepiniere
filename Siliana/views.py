@@ -10,6 +10,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from django.core.mail import send_mail
 from django.conf import settings
+from .firebase_admin import verify_firebase_id_token
 
 
 def user_login(request):
@@ -181,11 +182,24 @@ def public_order(request):
     produits = Produit.objects.all().order_by('nom')
     
     if request.method == 'POST':
+        id_token = request.POST.get('firebase_id_token', '').strip()
+        if not id_token:
+            messages.error(request, 'الرجاء تأكيد رقم الهاتف قبل إرسال الطلب')
+            return render(request, 'public_order.html', {'produits': produits})
+
+        try:
+            decoded = verify_firebase_id_token(id_token)
+        except Exception:
+            messages.error(request, 'تعذر التحقق من رقم الهاتف. الرجاء المحاولة مرة أخرى.')
+            return render(request, 'public_order.html', {'produits': produits})
+
+        verified_phone = decoded.get('phone_number')
+
         nom = request.POST.get('nom')
         email = request.POST.get('email', '').strip()
         wilaya = request.POST.get('wilaya')
         ville = request.POST.get('ville')
-        telephone = request.POST.get('telephone')
+        telephone = verified_phone or request.POST.get('telephone')
         
         # Validate required fields
         if not all([nom, wilaya, ville, telephone]):
