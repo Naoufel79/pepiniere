@@ -5,7 +5,7 @@ import os
 ########
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']  # Update this with your actual domain in production
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '*.railway.app,pepiniere-production.up.railway.app').split(',') if h.strip()]
 
 ###### Database configuration for Railway (PostgreSQL)
 # Prioritize internal database for Railway
@@ -13,12 +13,14 @@ DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 }
 
+# Optional: minimal DB info (no secrets)
+try:
+    _db = DATABASES.get('default', {})
+    print(f"DB: engine={_db.get('ENGINE')} host={_db.get('HOST')} port={_db.get('PORT')} name={_db.get('NAME')}")
+except Exception:
+    pass
+
 # Debug: Always print database info for Railway debugging
-print("=== Railway Database Debug ===")
-print(f"DATABASE_URL: {os.environ.get('DATABASE_URL', 'Not set')}")
-print(f"DATABASE_PUBLIC_URL: {os.environ.get('DATABASE_PUBLIC_URL', 'Not set')}")
-print(f"Using database config: {DATABASES['default']}")
-print("===============================")
 
 # Debug: Print database info (remove in production)
 import sys
@@ -46,7 +48,7 @@ import os
 os.makedirs(MEDIA_ROOT / 'products', exist_ok=True)
 
 # Security settings for production
-CSRF_TRUSTED_ORIGINS = ['https://*.railway.app']
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.railway.app,https://pepiniere-production.up.railway.app').split(',') if o.strip()]
 # SECURE_SSL_REDIRECT = True  # Railway handles SSL automatically
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
