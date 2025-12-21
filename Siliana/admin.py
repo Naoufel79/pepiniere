@@ -1,6 +1,18 @@
 from django.contrib import admin
+from django.contrib.admin.widgets import AdminFileWidget
+from django.db import models
 from django.utils.html import format_html
 from .models import Produit, Achat, Vente, Order, OrderItem
+
+
+class SafeAdminFileWidget(AdminFileWidget):
+    # Prevents admin crash when DB has filename but file is missing
+
+    def render(self, name, value, attrs=None, renderer=None):
+        try:
+            return super().render(name, value, attrs=attrs, renderer=renderer)
+        except ValueError:
+            return super().render(name, None, attrs=attrs, renderer=renderer)
 
 
 @admin.register(Produit)
@@ -23,6 +35,17 @@ class ProduitAdmin(admin.ModelAdmin):
         if '_popup' in request.GET or obj is None:
             return ('nom', 'quantite', 'prix_achat', 'prix_vente', 'image', 'description')
         return self.fields
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
+
+        # Avoid crash when the image file is missing in MEDIA storage.
+        if isinstance(db_field, models.ImageField) and getattr(db_field, 'name', '') == 'image' and formfield is not None:
+            attrs = getattr(formfield.widget, 'attrs', None) or {}
+            formfield.widget = SafeAdminFileWidget(attrs)
+
+        return formfield
+
     def image_thumbnail(self, obj):
         if not obj.image:
             return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة</span>')
