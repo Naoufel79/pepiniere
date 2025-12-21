@@ -8,16 +8,17 @@ function setStepperState(verified) {
   const s3 = $("step3");
   if (!s1 || !s2 || !s3) return;
 
+  // In static-code mode, we let the user fill delivery/products normally.
+  // This stepper only indicates whether verification is complete.
+  s2.classList.add("is-active");
+  s3.classList.add("is-active");
+
   if (verified) {
     s1.classList.remove("is-active");
     s1.classList.add("is-done");
-    s2.classList.add("is-active");
-    s3.classList.add("is-active");
   } else {
     s1.classList.add("is-active");
     s1.classList.remove("is-done");
-    s2.classList.remove("is-active", "is-done");
-    s3.classList.remove("is-active", "is-done");
   }
 }
 
@@ -61,7 +62,7 @@ function init() {
 
   placeOrderBtn.disabled = true;
   setStepperState(false);
-  setMessage({ status: "الرجاء إدخال الرمز لتفعيل زر تأكيد الطلب." });
+  setMessage({ status: "في الخطوة الأخيرة أدخل الرمز لتفعيل زر تأكيد الطلب." });
 
   verifyBtn.addEventListener("click", () => {
     const code = (codeInput.value || "").trim();
