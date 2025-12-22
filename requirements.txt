@@ -7,3 +7,6 @@ gunicorn
 psycopg2-binary
 firebase-admin
 
+
+django-cloudinary-storage
+cloudinary
