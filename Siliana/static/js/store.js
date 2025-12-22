@@ -9,8 +9,12 @@ function readOrder() {
 }
 
 function writeOrder(order) {
-  localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
-  updateCartBadge();
+  try {
+    localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(order));
+    updateCartBadge();
+  } catch (e) {
+    console.error("Failed to save order", e);
+  }
 }
 
 function normalizeInt(v) {
@@ -59,13 +63,46 @@ function ensureSkeletons() {
   });
 }
 
+function showToast(message) {
+  let toast = document.getElementById("toast-notification");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "toast-notification";
+    toast.style.position = "fixed";
+    toast.style.bottom = "20px";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+    toast.style.backgroundColor = "#10b981"; // Green
+    toast.style.color = "#fff";
+    toast.style.padding = "12px 24px";
+    toast.style.borderRadius = "8px";
+    toast.style.zIndex = "9999";
+    toast.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
+    toast.style.fontWeight = "bold";
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.3s ease-in-out";
+    toast.style.pointerEvents = "none";
+    document.body.appendChild(toast);
+  }
+  
+  toast.textContent = message;
+  toast.style.opacity = "1";
+  
+  // Clear previous timeout if exists
+  if (toast.timeoutId) clearTimeout(toast.timeoutId);
+  
+  toast.timeoutId = setTimeout(() => {
+    toast.style.opacity = "0";
+  }, 2000);
+}
+
 // Public API used by templates
 window.storeAddToCart = function storeAddToCart({ id, name, price, imageUrl } = {}) {
   if (!id) return;
 
   const order = readOrder();
-  order.products ||= {};
-  order.cartItems ||= [];
+  order.products = order.products || {};
+  order.cartItems = order.cartItems || [];
 
   const key = `product_${id}`;
   order.products[key] = normalizeInt(order.products[key]) + 1;
@@ -78,6 +115,7 @@ window.storeAddToCart = function storeAddToCart({ id, name, price, imageUrl } = 
   }
 
   writeOrder(order);
+  showToast("??? ??????? ????? ?????");
 };
 
 window.storeClearCart = function storeClearCart() {
@@ -113,13 +151,13 @@ function initCartPage() {
             ${it.imageUrl ? `<img src="${it.imageUrl}" alt="" width="56" height="56" style="border-radius:12px;object-fit:cover;" loading="lazy" decoding="async" />` : ``}
             <div>
               <div style="font-weight:950;">${it.name || ""}</div>
-              <div style="color:rgba(229,231,235,.70);">${Number(it.price || 0).toFixed(2)} د.ت</div>
+              <div style="color:rgba(229,231,235,.70);">${Number(it.price || 0).toFixed(2)} ?.?</div>
             </div>
           </div>
 
           <div style="display:flex;gap:10px;align-items:center;">
             <input class="input" style="max-width:110px" type="number" min="0" value="${normalizeInt(it.qty)}" />
-            <button class="btn btn-ghost" type="button">حذف</button>
+            <button class="btn btn-ghost" type="button">???</button>
           </div>
         </div>
       `;
@@ -130,7 +168,7 @@ function initCartPage() {
       qtyInput?.addEventListener("change", () => {
         const q = normalizeInt(qtyInput.value);
         it.qty = q;
-        order.products ||= {};
+        order.products = order.products || {};
         order.products[`product_${it.id}`] = q;
         order.cartItems = items;
         writeOrder(order);
@@ -139,7 +177,7 @@ function initCartPage() {
 
       delBtn?.addEventListener("click", () => {
         it.qty = 0;
-        order.products ||= {};
+        order.products = order.products || {};
         order.products[`product_${it.id}`] = 0;
         order.cartItems = items.filter((x) => String(x.id) !== String(it.id));
         writeOrder(order);
@@ -149,7 +187,7 @@ function initCartPage() {
       list?.appendChild(row);
     }
 
-    if (totalEl) totalEl.textContent = `${total.toFixed(2)} د.ت`;
+    if (totalEl) totalEl.textContent = `${total.toFixed(2)} ?.?`;
   };
 
   render();
