@@ -115,7 +115,7 @@ window.storeAddToCart = function storeAddToCart({ id, name, price, imageUrl } = 
   }
 
   writeOrder(order);
-  showToast("تمت الإضافة للسلة بنجاح");
+  showToast("\u062a\u0645\u062a \u0627\u0644\u0625\u0636\u0627\u0641\u0629 \u0644\u0644\u0633\u0644\u0629 \u0628\u0646\u062c\u0627\u062d");
 };
 
 window.storeClearCart = function storeClearCart() {
@@ -151,13 +151,13 @@ function initCartPage() {
             ${it.imageUrl ? `<img src="${it.imageUrl}" alt="" width="56" height="56" style="border-radius:12px;object-fit:cover;" loading="lazy" decoding="async" />` : ``}
             <div>
               <div style="font-weight:950;">${it.name || ""}</div>
-              <div style="color:rgba(229,231,235,.70);">${Number(it.price || 0).toFixed(2)} د.ت</div>
+              <div style="color:rgba(229,231,235,.70);">${Number(it.price || 0).toFixed(2)} \u062f.\u062a</div>
             </div>
           </div>
 
           <div style="display:flex;gap:10px;align-items:center;">
             <input class="input" style="max-width:110px" type="number" min="0" value="${normalizeInt(it.qty)}" />
-            <button class="btn btn-ghost" type="button">حذف</button>
+            <button class="btn btn-ghost" type="button">\u062d\u0630\u0641</button>
           </div>
         </div>
       `;
@@ -187,7 +187,7 @@ function initCartPage() {
       list?.appendChild(row);
     }
 
-    if (totalEl) totalEl.textContent = `${total.toFixed(2)} د.ت`;
+    if (totalEl) totalEl.textContent = `${total.toFixed(2)} \u062f.\u062a`;
   };
 
   render();
