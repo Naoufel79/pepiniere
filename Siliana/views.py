@@ -5,13 +5,93 @@ from django.contrib import messages
 from .models import Produit, Vente, Achat, Order, OrderItem
 from datetime import date
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_GET
+from django.utils.dateparse import parse_date
+from functools import wraps
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from django.core.mail import send_mail
 from django.conf import settings
 import os
 from .firebase_admin import verify_firebase_id_token
+
+
+def _api_error(message, status=400):
+    return JsonResponse({"error": message}, status=status)
+
+
+def _get_api_key(request):
+    return request.headers.get("X-API-Key") or request.GET.get("api_key")
+
+
+def api_key_required(view_func):
+    @wraps(view_func)
+    def _wrapped(request, *args, **kwargs):
+        expected = (settings.EXTERNAL_API_KEY or "").strip()
+        if not expected:
+            return _api_error("API key not configured", status=500)
+        provided = _get_api_key(request)
+        if provided != expected:
+            return _api_error("Invalid API key", status=401)
+        return view_func(request, *args, **kwargs)
+    return _wrapped
+
+
+def _parse_pagination(request, default_limit=100, max_limit=500):
+    limit_raw = request.GET.get("limit", str(default_limit))
+    offset_raw = request.GET.get("offset", "0")
+    try:
+        limit = int(limit_raw)
+        offset = int(offset_raw)
+    except ValueError:
+        return None, None, _api_error("limit and offset must be integers", status=400)
+    if limit < 1:
+        return None, None, _api_error("limit must be >= 1", status=400)
+    if offset < 0:
+        return None, None, _api_error("offset must be >= 0", status=400)
+    if limit > max_limit:
+        limit = max_limit
+    return limit, offset, None
+
+
+def _serialize_product(product, request=None):
+    image_url = product.image.url if product.image else None
+    if image_url and request is not None:
+        image_url = request.build_absolute_uri(image_url)
+    return {
+        "id": product.id,
+        "name": product.nom,
+        "description": product.description,
+        "stock_quantity": product.quantite,
+        "purchase_price": str(product.prix_achat),
+        "selling_price": str(product.prix_vente),
+        "image_url": image_url,
+    }
+
+
+def _serialize_order(order):
+    items = []
+    for item in order.orderitem_set.all():
+        items.append({
+            "product_id": item.produit_id,
+            "product_name": item.produit.nom,
+            "quantity": item.quantite,
+            "price": str(item.prix),
+            "total": str(item.total()),
+        })
+    return {
+        "id": order.id,
+        "customer_name": order.nom,
+        "email": order.email,
+        "wilaya": order.wilaya,
+        "ville": order.ville,
+        "telephone": order.telephone,
+        "status": order.status,
+        "date_commande": order.date_commande.isoformat(),
+        "total": str(order.total()),
+        "items": items,
+    }
 
 
 def user_login(request):
@@ -36,6 +116,77 @@ def user_logout(request):
     logout(request)
     messages.success(request, 'تم تسجيل الخروج بنجاح')
     return redirect('login')
+
+
+@require_GET
+@api_key_required
+def api_products(request):
+    products = Produit.objects.all().order_by('id')
+    in_stock = (request.GET.get("in_stock") or "").strip().lower()
+    if in_stock in ("1", "true", "yes"):
+        products = products.filter(quantite__gt=0)
+
+    limit, offset, error = _parse_pagination(request)
+    if error:
+        return error
+
+    total = products.count()
+    page = products[offset:offset + limit]
+    data = [_serialize_product(product, request=request) for product in page]
+    return JsonResponse({
+        "count": total,
+        "limit": limit,
+        "offset": offset,
+        "results": data,
+    })
+
+
+@require_GET
+@api_key_required
+def api_orders(request):
+    orders = Order.objects.all().order_by('-date_commande').prefetch_related('orderitem_set__produit')
+    status = (request.GET.get("status") or "").strip()
+    if status:
+        orders = orders.filter(status=status)
+
+    date_from = (request.GET.get("date_from") or "").strip()
+    if date_from:
+        parsed = parse_date(date_from)
+        if not parsed:
+            return _api_error("date_from must be YYYY-MM-DD", status=400)
+        orders = orders.filter(date_commande__date__gte=parsed)
+
+    date_to = (request.GET.get("date_to") or "").strip()
+    if date_to:
+        parsed = parse_date(date_to)
+        if not parsed:
+            return _api_error("date_to must be YYYY-MM-DD", status=400)
+        orders = orders.filter(date_commande__date__lte=parsed)
+
+    limit, offset, error = _parse_pagination(request)
+    if error:
+        return error
+
+    total = orders.count()
+    page = orders[offset:offset + limit]
+    data = [_serialize_order(order) for order in page]
+    return JsonResponse({
+        "count": total,
+        "limit": limit,
+        "offset": offset,
+        "results": data,
+    })
+
+
+@require_GET
+@api_key_required
+def api_order_detail(request, order_id):
+    try:
+        order = Order.objects.prefetch_related('orderitem_set__produit').get(id=order_id)
+    except Order.DoesNotExist:
+        return _api_error("Order not found", status=404)
+
+    return JsonResponse(_serialize_order(order))
 
 
 @login_required

@@ -19,4 +19,7 @@ urlpatterns = [
     path('orders/', views.orders_list, name='orders_list'),
     path('orders/update/<int:order_id>/', views.update_order_status, name='update_order_status'),
     path('orders/export/', views.export_orders, name='export_orders'),
+    path('api/products/', views.api_products, name='api_products'),
+    path('api/orders/', views.api_orders, name='api_orders'),
+    path('api/orders/<int:order_id>/', views.api_order_detail, name='api_order_detail'),
 ]
