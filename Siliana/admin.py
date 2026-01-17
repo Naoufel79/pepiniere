@@ -49,33 +49,37 @@ class ProduitAdmin(admin.ModelAdmin):
 
     def image_thumbnail(self, obj):
         """Thumbnail for list view - uses PostgreSQL stored image"""
-        if not obj.has_image():
-            return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة</span>')
+        try:
+            if not obj.has_image():
+                return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة</span>')
 
-        url = reverse('serve_product_image', args=[obj.id])
-        return format_html(
-            '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" alt="{}" />',
-            url,
-            obj.nom,
-        )
+            url = reverse('serve_product_image', args=[obj.id])
+            return format_html(
+                '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" alt="{}" />',
+                url,
+                obj.nom,
+            )
+        except (AttributeError, Exception):
+            return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة</span>')
     image_thumbnail.short_description = 'صورة'
     
     def image_preview(self, obj):
         """Large preview for edit page - uses PostgreSQL stored image"""
-        if not obj.has_image():
-            return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة للمعاينة</span>')
+        try:
+            if not obj.has_image():
+                return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة للمعاينة</span>')
 
-        url = reverse('serve_product_image', args=[obj.id])
-        return format_html(
-            '<div style="margin: 10px 0;">'
-            '<img src="{}" style="max-width: 300px; max-height: 300px; object-fit: contain; border-radius: 5px; border: 1px solid #ddd;" alt="{} - معاينة" />'
-            '<br><small style="color: #666;">الصورة محفوظة في قاعدة البيانات PostgreSQL</small>'
-            '</div>',
-            url,
-            obj.nom,
-        )
-    image_preview.short_description = 'معاينة الصورة'
-    
+            url = reverse('serve_product_image', args=[obj.id])
+            return format_html(
+                '<div style="margin: 10px 0;">' 
+                '<img src="{}" style="max-width: 300px; max-height: 300px; object-fit: contain; border-radius: 5px; border: 1px solid #ddd;" alt="{} - معاينة" />'
+                '<br><small style="color: #666;">الصورة محفوظة في قاعدة البيانات PostgreSQL</small>'
+                '</div>',
+                url,
+                obj.nom,
+            )
+        except (AttributeError, Exception):
+            return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة للمعاينة</span>')
     def has_description(self, obj):
         if obj.description:
             return format_html('<span style="color: green;">✓</span>')

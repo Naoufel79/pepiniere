@@ -43,7 +43,11 @@ class Produit(models.Model):
     
     def has_image(self):
         """Check if product has an image stored in database"""
-        return bool(self.image_data)
+        try:
+            return bool(self.image_data)
+        except AttributeError:
+            # If image_data field doesn't exist yet (migration not run)
+            return False
 
 
 class Achat(models.Model):
