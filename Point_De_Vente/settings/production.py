@@ -33,21 +33,23 @@ WHITENOISE_USE_FINDERS = False
 WHITENOISE_AUTOREFRESH = False
 WHITENOISE_MAX_AGE = 31536000  # 1 year cache
 
-# Cloudinary Configuration (For Persistent Media)
+# Cloudinary Configuration (For Persistent Media ONLY - not static files)
 # Only use Cloudinary if the URL is set in environment variables
 if os.environ.get('CLOUDINARY_URL'):
-    # Add cloudinary apps BEFORE other apps to ensure proper initialization
-    INSTALLED_APPS = ['cloudinary_storage', 'cloudinary'] + INSTALLED_APPS
+    # Add cloudinary apps for MEDIA files only
+    INSTALLED_APPS = INSTALLED_APPS + ['cloudinary_storage', 'cloudinary']
     
-    # Use Cloudinary for Media files (images, uploads)
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    
-    # Cloudinary settings - Parse from CLOUDINARY_URL if individual vars not set
+    # Cloudinary settings - Parse from CLOUDINARY_URL
     import cloudinary
     cloudinary.config(cloudinary_url=os.environ.get('CLOUDINARY_URL'))
     
+    # Use Cloudinary for Media files (images, uploads) via STORAGES (Django 5.x way)
+    STORAGES["default"] = {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    }
+    
     # Media URL from Cloudinary
-    MEDIA_URL = '/media/'  # Cloudinary storage will handle the actual URLs
+    MEDIA_URL = '/media/'
     
     print("✅ Cloudinary storage activated for media files")
 else:
