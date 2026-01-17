@@ -18,7 +18,7 @@ class SafeAdminFileWidget(AdminFileWidget):
 
 @admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'image_thumbnail', 'quantite', 'prix_achat', 'prix_vente')
+    list_display = ('nom', 'quantite', 'prix_achat', 'prix_vente')
     list_display_links = ('nom',)
     search_fields = ('nom',)
     list_filter = ('quantite',)
