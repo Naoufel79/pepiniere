@@ -22,8 +22,9 @@ class ProduitAdmin(admin.ModelAdmin):
     list_display_links = ('nom',)
     search_fields = ('nom',)
     list_filter = ('quantite',)
-    readonly_fields = ('image_preview',)
-    fields = ('nom', 'quantite', 'prix_achat', 'prix_vente', 'image', 'image_preview', 'description')
+    # Temporarily disable image_preview to avoid errors
+    # readonly_fields = ('image_preview',)
+    fields = ('nom', 'quantite', 'prix_achat', 'prix_vente', 'image', 'description')
 
     def get_readonly_fields(self, request, obj=None):
         # Make image_preview readonly only when not in popup
