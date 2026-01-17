@@ -717,3 +717,23 @@ def export_orders(request):
         return response
     
     return redirect('orders_list')
+
+
+@require_GET
+def serve_product_image(request, product_id):
+    """Serve product image from PostgreSQL database"""
+    try:
+        produit = Produit.objects.get(id=product_id)
+        
+        if not produit.image_data:
+            # Return a 404 or default image
+            return HttpResponse(status=404)
+        
+        # Return image from database
+        response = HttpResponse(produit.image_data, content_type=produit.image_type or 'image/jpeg')
+        response['Content-Disposition'] = f'inline; filename="{produit.image_name or "product.jpg"}"'
+        response['Cache-Control'] = 'public, max-age=31536000'  # Cache for 1 year
+        return response
+        
+    except Produit.DoesNotExist:
+        return HttpResponse(status=404)

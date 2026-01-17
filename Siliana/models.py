@@ -5,11 +5,45 @@ class Produit(models.Model):
     quantite = models.PositiveIntegerField("الكمية في المخزون", default=0)
     prix_achat = models.DecimalField("سعر الشراء (دينار)", max_digits=10, decimal_places=2)
     prix_vente = models.DecimalField("سعر البيع (دينار)", max_digits=10, decimal_places=2)
-    image = models.ImageField("صورة المنتج", upload_to='products/', blank=True, null=True)
+    
+    # Store image in PostgreSQL as binary data
+    image_data = models.BinaryField("بيانات الصورة", blank=True, null=True, editable=False)
+    image_name = models.CharField("اسم الصورة", max_length=255, blank=True, null=True)
+    image_type = models.CharField("نوع الصورة", max_length=50, blank=True, null=True)  # image/jpeg, image/png, etc.
+    
+    # Keep old ImageField for backward compatibility (will be empty on Railway)
+    image = models.ImageField("صورة المنتج (تحميل)", upload_to='products/', blank=True, null=True)
+    
     description = models.TextField("وصف المنتج", blank=True, null=True)
-
+    
     def __str__(self):
         return self.nom
+    
+    def save(self, *args, **kwargs):
+        # If image is uploaded via ImageField, copy it to BinaryField for PostgreSQL storage
+        if self.image and hasattr(self.image, 'file'):
+            try:
+                self.image.file.seek(0)
+                self.image_data = self.image.file.read()
+                self.image_name = self.image.name
+                # Detect content type
+                if self.image.name.lower().endswith(('.jpg', '.jpeg')):
+                    self.image_type = 'image/jpeg'
+                elif self.image.name.lower().endswith('.png'):
+                    self.image_type = 'image/png'
+                elif self.image.name.lower().endswith('.webp'):
+                    self.image_type = 'image/webp'
+                elif self.image.name.lower().endswith('.gif'):
+                    self.image_type = 'image/gif'
+                else:
+                    self.image_type = 'image/jpeg'  # default
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
+    
+    def has_image(self):
+        """Check if product has an image stored in database"""
+        return bool(self.image_data)
 
 
 class Achat(models.Model):

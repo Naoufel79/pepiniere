@@ -33,10 +33,10 @@
     <div class="form-group" style="text-align: right;">
         <label for="image">صورة المنتج (اختياري)</label>
         <input type="file" id="image" name="image" accept="image/*">
-        {% if product.image %}
+        {% if product.has_image %}
         <div style="margin-top: 10px;">
-            <img src="{{ product.image.url }}" alt="{{ product.nom }}" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
-            <p style="color: #666; font-size: 0.9em;">الصورة الحالية - لتغييرها اختر صورة جديدة</p>
+            <img src="{% url 'serve_product_image' product.id %}" alt="{{ product.nom }}" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+            <p style="color: #666; font-size: 0.9em;">الصورة الحالية محفوظة في قاعدة البيانات - لتغييرها اختر صورة جديدة</p>
         </div>
         {% endif %}
     </div>

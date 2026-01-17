@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.admin.widgets import AdminFileWidget
 from django.db import models
 from django.utils.html import format_html
+from django.urls import reverse
 from .models import Produit, Achat, Vente, Order, OrderItem
 
 
@@ -17,7 +18,7 @@ class SafeAdminFileWidget(AdminFileWidget):
 
 @admin.register(Produit)
 class ProduitAdmin(admin.ModelAdmin):
-    list_display = ('nom', 'quantite', 'prix_achat', 'prix_vente')
+    list_display = ('nom', 'image_thumbnail', 'quantite', 'prix_achat', 'prix_vente')
     list_display_links = ('nom',)
     search_fields = ('nom',)
     list_filter = ('quantite',)
@@ -47,31 +48,29 @@ class ProduitAdmin(admin.ModelAdmin):
         return formfield
 
     def image_thumbnail(self, obj):
-        if not obj.image:
+        """Thumbnail for list view - uses PostgreSQL stored image"""
+        if not obj.has_image():
             return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة</span>')
 
-        try:
-            url = obj.image.url
-        except Exception:
-            return format_html('<span style="color: #999; font-style: italic;">خطأ في الصورة</span>')
-
+        url = reverse('serve_product_image', args=[obj.id])
         return format_html(
             '<img src="{}" width="50" height="50" style="object-fit: cover; border-radius: 5px;" alt="{}" />',
             url,
             obj.nom,
         )
     image_thumbnail.short_description = 'صورة'
+    
     def image_preview(self, obj):
-        if not obj.image:
+        """Large preview for edit page - uses PostgreSQL stored image"""
+        if not obj.has_image():
             return format_html('<span style="color: #999; font-style: italic;">لا توجد صورة للمعاينة</span>')
 
-        try:
-            url = obj.image.url
-        except Exception:
-            return format_html('<span style="color: #999; font-style: italic;">خطأ في تحميل الصورة</span>')
-
+        url = reverse('serve_product_image', args=[obj.id])
         return format_html(
-            '<img src="{}" width="150" height="150" style="object-fit: cover; border-radius: 5px;" alt="{} - معاينة" />',
+            '<div style="margin: 10px 0;">'
+            '<img src="{}" style="max-width: 300px; max-height: 300px; object-fit: contain; border-radius: 5px; border: 1px solid #ddd;" alt="{} - معاينة" />'
+            '<br><small style="color: #666;">الصورة محفوظة في قاعدة البيانات PostgreSQL</small>'
+            '</div>',
             url,
             obj.nom,
         )

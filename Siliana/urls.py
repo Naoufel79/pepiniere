@@ -23,4 +23,7 @@ urlpatterns = [
     path('api/orders/', views.api_orders, name='api_orders'),
     path('api/orders/<int:order_id>/', views.api_order_detail, name='api_order_detail'),
     path('api/sales/', views.api_sales, name='api_sales'),
+    
+    # Serve product images from PostgreSQL
+    path('product-image/<int:product_id>/', views.serve_product_image, name='serve_product_image'),
 ]
