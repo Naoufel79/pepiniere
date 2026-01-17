@@ -94,6 +94,18 @@ def _serialize_order(order):
     }
 
 
+def _serialize_sale(vente):
+    return {
+        "id": vente.id,
+        "product_id": vente.produit_id,
+        "product_name": vente.produit.nom,
+        "quantity": vente.quantite,
+        "unit_price": str(vente.produit.prix_vente),
+        "total": str(vente.total()),
+        "date": vente.date_vente.isoformat(),
+    }
+
+
 def user_login(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -187,6 +199,55 @@ def api_order_detail(request, order_id):
         return _api_error("Order not found", status=404)
 
     return JsonResponse(_serialize_order(order))
+
+
+@require_GET
+@api_key_required
+def api_sales(request):
+    """API endpoint for sales (Vente)"""
+    sales = Vente.objects.all().order_by('-date_vente').select_related('produit')
+    
+    # Filter by date range
+    date_from = (request.GET.get("date_from") or "").strip()
+    if date_from:
+        parsed = parse_date(date_from)
+        if not parsed:
+            return _api_error("date_from must be YYYY-MM-DD", status=400)
+        sales = sales.filter(date_vente__gte=parsed)
+
+    date_to = (request.GET.get("date_to") or "").strip()
+    if date_to:
+        parsed = parse_date(date_to)
+        if not parsed:
+            return _api_error("date_to must be YYYY-MM-DD", status=400)
+        sales = sales.filter(date_vente__lte=parsed)
+
+    # Filter by product
+    product_id = (request.GET.get("product_id") or "").strip()
+    if product_id:
+        try:
+            sales = sales.filter(produit_id=int(product_id))
+        except ValueError:
+            return _api_error("product_id must be an integer", status=400)
+
+    limit, offset, error = _parse_pagination(request)
+    if error:
+        return error
+
+    total = sales.count()
+    page = sales[offset:offset + limit]
+    data = [_serialize_sale(sale) for sale in page]
+    
+    # Calculate totals
+    total_revenue = sum(sale.total() for sale in page)
+    
+    return JsonResponse({
+        "count": total,
+        "limit": limit,
+        "offset": offset,
+        "total_revenue": str(total_revenue),
+        "results": data,
+    })
 
 
 @login_required
