@@ -5,17 +5,6 @@ import os
 
 DEBUG = False
 
-# Allow WhiteNoise to serve all file types including images
-WHITENOISE_MIMETYPES = {
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp',
-    '.svg': 'image/svg+xml',
-    '.ico': 'image/x-icon',
-}
-
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '*.railway.app,pepiniere-production.up.railway.app').split(',') if h.strip()]
 
 ###### Database configuration for Railway (PostgreSQL)
@@ -28,12 +17,21 @@ MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Use CompressedStaticFilesStorage instead of Manifest version
-# This allows serving images without strict manifest checking
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Disable compression and manifest for maximum compatibility
+# This ensures all static files (including images) are served correctly
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
-# Keep the STATICFILES_DIRS from base.py for app static files
-# WhiteNoise will collect them during collectstatic
+# WhiteNoise will still serve files, but without compression issues
+WHITENOISE_USE_FINDERS = False
+WHITENOISE_AUTOREFRESH = False
+WHITENOISE_MAX_AGE = 31536000  # 1 year cache
 
 # Cloudinary Configuration (For Persistent Media)
 # Only use Cloudinary if the URL is set in environment variables
